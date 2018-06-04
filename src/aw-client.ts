@@ -4,13 +4,13 @@ const request = require('request');
  * @description Client for connecting to the ActivityWatch API
  */
 
-export default class AW_Client {
+export default class AWClient {
     private _bucket: {
         id: string,
         clientName: string,
         hostName: string,
         eventType: string
-    }
+    };
     private _isTest: boolean;
 
     constructor(isTest = true) {

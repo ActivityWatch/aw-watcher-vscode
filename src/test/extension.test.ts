@@ -5,7 +5,7 @@
 
 // The module 'assert' provides assertion methods from node
 import * as assert from 'assert';
-import AW_Client from '../aw-client.js';
+import AWClient from '../aw-client.js';
 
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
@@ -14,7 +14,7 @@ import AW_Client from '../aw-client.js';
 
 // Defines a Mocha test suite to group tests of similar kind together
 describe("AWClient", function () {
-    const client = new AW_Client();
+    const client = new AWClient();
       
     describe("bucket", () => {
         it('[initBucket] should create aw-watcher-coding-test bucket without error', function (done) {
