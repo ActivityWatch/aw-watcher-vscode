@@ -32,11 +32,14 @@ describe("AWClient", function () {
                 })
                 .catch(err => done(new Error(err)));
         });
-    });
-
-    // Defines a Mocha unit test
-    it("create", function() {
-        assert.equal(-1, [1, 2, 3].indexOf(5));
-        assert.equal(-1, [1, 2, 3].indexOf(0));
+        it('[deleteBucket] should delete bucket without error', function (done) {
+            client.deleteBucket()
+                .then(() => client.getBucket())
+                .then(() => done(new Error('got bucket information after deletion')))
+                .catch(({ err, httpResponse, data }) => {
+                    assert.equal(httpResponse.statusCode, 404);
+                    done();
+                });
+        });
     });
 });
