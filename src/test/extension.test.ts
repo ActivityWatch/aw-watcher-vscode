@@ -5,6 +5,7 @@
 
 // The module 'assert' provides assertion methods from node
 import * as assert from 'assert';
+import AW_Client from '../aw-client.js';
 
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
@@ -12,10 +13,29 @@ import * as assert from 'assert';
 // import * as myExtension from '../extension';
 
 // Defines a Mocha test suite to group tests of similar kind together
-suite("Extension Tests", function () {
+describe("AWClient", function () {
+    const client = new AW_Client();
+      
+    describe("bucket", () => {
+        it('[initBucket] should create aw-watcher-coding-test bucket without error', function (done) {
+            client.initBucket('aw-watcher-coding-test', 'test', 'coding.editor.project')
+                .then(() => done())
+                .catch(err => {
+                    done(new Error(err));
+                });
+        });
+        it('[getBucket] should retrieve bucket information for aw-watcher-coding-test', function (done) {
+            client.getBucket()
+                .then(({ data }) => {
+                    assert.equal('aw-watcher-coding-test', data.client);
+                    done();
+                })
+                .catch(err => done(new Error(err)));
+        });
+    });
 
     // Defines a Mocha unit test
-    test("Something 1", function() {
+    it("create", function() {
         assert.equal(-1, [1, 2, 3].indexOf(5));
         assert.equal(-1, [1, 2, 3].indexOf(0));
     });

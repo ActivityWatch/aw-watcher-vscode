@@ -11,23 +11,19 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.sayHello"
+        "*"
     ],
     "main": "./out/extension",
     "contributes": {
-        "commands": [
-            {
-                "command": "extension.sayHello",
-                "title": "Hello World"
-            }
-        ]
+        "commands": []
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+        "test": "npm run compile && node ./node_modules/vscode/bin/test",
+        "test:mocha": "npm run compile && node ./node_modules/mocha/bin/mocha ./out/test/extension.test.js"
     },
     "devDependencies": {
         "typescript": "^2.6.1",
@@ -35,5 +31,11 @@
         "tslint": "^5.8.0",
         "@types/node": "^7.0.43",
         "@types/mocha": "^2.2.42"
+    },
+    "dependencies": {
+        "axios": "^0.18.0",
+        "dialog": "^0.3.1",
+        "mocha": "^5.2.0",
+        "request": "^2.87.0"
     }
 }
