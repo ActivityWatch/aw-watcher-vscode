@@ -1,46 +1,25 @@
 const request = require('request');
 import Event from './event';
+import BucketInterface from './bucket.interface';
 
 /**
  * @description Client for connecting to the ActivityWatch API
  */
 
 export default class AWClient {
-    private _bucket: {
-        id: string,
-        clientName: string,
-        hostName: string,
-        eventType: string
-    };
     private _isTest: boolean;
 
     constructor(isTest = true) {
-        this._bucket = {
-            id: '',
-            clientName: '',
-            hostName: '',
-            eventType: ''
-        };
-        
         this._isTest = isTest;
     }
 
-    public initBucket(clientName: string, hostName: string, eventType: string): Promise<string | Error> {
-        this._bucket.id = `${clientName}_${hostName}`;
-        this._bucket.clientName = clientName;
-        this._bucket.hostName = hostName;
-        this._bucket.eventType = eventType;
-
-        return this.createBucket();
-    }
-
-    public createBucket(): Promise<string> {
-        const apiMethod = `${this._bucket.id}`;
+    public createBucket(bucket: BucketInterface): Promise<string> {
+        const apiMethod = `${bucket.id}`;
         // const args = this._bucket;
         const args = {
-            client: this._bucket.clientName,
-            hostname: this._bucket.hostName,
-            type: this._bucket.eventType
+            client: bucket.clientName,
+            hostname: bucket.hostName,
+            type: bucket.eventType
         };
 
         return new Promise((resolve, reject) => {
@@ -57,20 +36,20 @@ export default class AWClient {
         });
     }
 
-    public getBucket() {
-        const apiMethod = `${this._bucket.id}`;
+    public getBucket(bucketId: string) {
+        const apiMethod = `${bucketId}`;
 
         return this._apiCall(apiMethod);
     }
 
-    public deleteBucket() {
-        const apiMethod = `${this._bucket.id}`;
+    public deleteBucket(bucketId: string) {
+        const apiMethod = `${bucketId}`;
         
         return this._apiCall(apiMethod, {}, 'DELETE');
     }
 
-    public sendEvent(event: Event) {
-        const apiMethod = `${this._bucket.id}/events`;
+    public sendEvent(bucketId: string, event: Event) {
+        const apiMethod = `${bucketId}/events`;
         const args = {
             timestamp: event.timestamp,
             duration: event.duration,
@@ -80,14 +59,14 @@ export default class AWClient {
         return this._apiCall(apiMethod, args, 'POST');
     }
 
-    public getEvents() {
-        const apiMethod = `${this._bucket.id}/events`;
+    public getEvents(bucketId: string) {
+        const apiMethod = `${bucketId}/events`;
 
         return this._apiCall(apiMethod);
     }
 
-    public sendHearbeat(event: Event, pulsetime: number) {
-        const apiMethod = `${this._bucket.id}/heartbeat?pulsetime=${pulsetime}`;
+    public sendHearbeat(bucketId: string, event: Event, pulsetime: number) {
+        const apiMethod = `${bucketId}/heartbeat?pulsetime=${pulsetime}`;
         const args = {
             timestamp: event.timestamp,
             duration: event.duration,

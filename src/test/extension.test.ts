@@ -5,7 +5,7 @@
 
 // The module 'assert' provides assertion methods from node
 import * as assert from 'assert';
-import AWClient from '../resources/aw-client.js';
+import Bucket from '../resources/bucket';
 import ProjectEvent from '../resources/coding.editor.project.event';
 
 // You can import and use all API from the 'vscode' module
@@ -14,36 +14,36 @@ import ProjectEvent from '../resources/coding.editor.project.event';
 // import * as myExtension from '../extension';
 
 // Defines a Mocha test suite to group tests of similar kind together
-describe("AWClient", function () {
-    const client = new AWClient();
+describe('AW-Client Bucket', function () {
+    const bucket = new Bucket();
 
     beforeEach(function initBucket (done) {
-        client.initBucket('aw-watcher-coding-test', 'mocha', 'coding.editor.project')
+        bucket.initBucket('aw-watcher-coding-test', 'mocha', 'coding.editor.project')
             .then(() => done())
             .catch(err => {
                 done(new Error(err));
             });
     });
 
-    describe("bucket", () => {
+    describe('bucket', () => {
         it('[initBucket] should create aw-watcher-coding-test bucket without error', function (done) {
-            client.initBucket('aw-watcher-coding-test', 'test', 'coding.editor.project')
+            bucket.initBucket('aw-watcher-coding-test', 'test', 'coding.editor.project')
                 .then(() => done())
                 .catch(err => {
                     done(new Error(err));
                 });
         });
         it('[getBucket] should retrieve bucket information for aw-watcher-coding-test', function (done) {
-            client.getBucket()
+            bucket.getBucket()
                 .then(({ data }) => {
-                    assert.equal('aw-watcher-coding-test', data.client);
+                    assert.equal('aw-watcher-coding-test_mocha', data.id);
                     done();
                 })
                 .catch(err => done(new Error(err)));
         });
         it('[deleteBucket] should delete bucket without error', function (done) {
-            client.deleteBucket()
-                .then(() => client.getBucket())
+            bucket.deleteBucket()
+                .then(() => bucket.getBucket())
                 .then(() => done(new Error('got bucket information after deletion')))
                 .catch(({ err, httpResponse, data }) => {
                     assert.equal(httpResponse.statusCode, 404);
@@ -64,7 +64,7 @@ describe("AWClient", function () {
                 }
             };
 
-            client.sendEvent(event)
+            bucket.sendEvent(undefined, event)
                 .then(({ httpResponse, data }) => {
                     done();
                 })
@@ -73,7 +73,7 @@ describe("AWClient", function () {
                 });
         });
         it('[getEvents] should get previously created event', function (done) {
-            client.getEvents()
+            bucket.getEvents()
                 .then(({ httpResponse, data }) => {
                     done();
                 })
@@ -95,7 +95,7 @@ describe("AWClient", function () {
                 }
             };
 
-            client.sendHearbeat(event, 10)
+            bucket.sendHearbeat(undefined, event, 10)
                 .then(() => done())
                 .catch(({ err }) => done(new Error(err)));
         });

@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the necessary extensibility types to use in your code below
 import { Disposable, ExtensionContext, window, workspace } from 'vscode';
-import AW_Client from './resources/aw-client.js';
+import Bucket from './resources/bucket.js';
 
 // This method is called when your extension is activated. Activation is
 // controlled by the activation events defined in package.json.
@@ -21,12 +21,12 @@ export function activate(context: ExtensionContext) {
 
 class ActivityWatch {
     private _disposable: Disposable;
-    private _client: AW_Client;
+    private _bucket: Bucket;
 
     constructor() {
-        this._client = new AW_Client();
-        // this._client.getBucketList();
-        this._client.initBucket('aw-watcher-coding', 'unknown', 'coding.editor.project')
+        this._bucket = new Bucket();
+        // this._bucket.getBucketList();
+        this._bucket.initBucket('aw-watcher-coding', 'unknown', 'coding.editor.project')
             .then(console.log)
             .catch(console.error);
         
@@ -47,7 +47,7 @@ class ActivityWatch {
         console.log('_onEvent');
         const projectName = this._getProjectName();
         if (!projectName) {
-            return this._handleError("project name not found");
+            return this._handleError('project name not found');
         }
 
         console.log(projectName);
