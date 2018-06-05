@@ -18,7 +18,7 @@ describe("AWClient", function () {
     const client = new AWClient();
 
     beforeEach(function initBucket (done) {
-        client.initBucket('aw-watcher-coding-test', 'test', 'coding.editor.project')
+        client.initBucket('aw-watcher-coding-test', 'mocha', 'coding.editor.project')
             .then(() => done())
             .catch(err => {
                 done(new Error(err));
@@ -69,18 +69,35 @@ describe("AWClient", function () {
                     done();
                 })
                 .catch(({ err, httpResponse }) => {
-                    done(false)
+                    done(new Error(err));
                 });
         });
         it('[getEvents] should get previously created event', function (done) {
             client.getEvents()
                 .then(({ httpResponse, data }) => {
-                    console.log('events', data);
                     done();
                 })
                 .catch(({ err, httpResponse }) => {
-                    done(false);
+                    done(new Error(err));
                 });
+        });
+    });
+
+    describe('heartbeat', () => {
+        it('[sendHeartbeat] should send heartbeat without errors', function (done) {
+            const event = new ProjectEvent({
+                timestamp: new Date(),
+                duration: 2,
+                data: {
+                    editor: 'vs-code',
+                    project: 'aw-extension',
+                    language: 'ts'
+                }
+            });
+
+            client.sendHearbeat(event, 10)
+                .then(() => done())
+                .catch(({ err }) => done(new Error(err)));
         });
     });
 });

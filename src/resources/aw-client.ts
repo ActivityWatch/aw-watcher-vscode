@@ -86,6 +86,17 @@ export default class AWClient {
         return this._apiCall(apiMethod);
     }
 
+    public sendHearbeat(event: Event, pulsetime: number) {
+        const apiMethod = `${this._bucket.id}/heartbeat?pulsetime=${pulsetime}`;
+        const args = {
+            timestamp: event.timestamp,
+            duration: event.duration,
+            data: event.data
+        };
+
+        return this._apiCall(apiMethod, args, 'POST');
+    }
+
     /**
      * @description Makes an api call to the ActivityWatch API
      * @example <caption>Example showing how to create a bucket</caption>
