@@ -1,21 +1,13 @@
 import Event from './event';
 
 /**
- * @description template for the event type coding.editor.project
+ * @description Interface for events of the type coding.editor.project
  */
-export default class CodingEditorProjectEvent extends Event {
-    constructor({
-        timestamp = new Date(),
-        duration,
-        data
-    }: {
-        timestamp: Date, duration: number, data: {
-            editor: string,
-            project: string,
-            language: string
-        }
-    }) {
-        
-        super({ timestamp, duration, data });
-    }
+
+export default interface ProjectEvent extends Event{
+    data: {
+        editor: string;
+        project: string;
+        language: string;
+    };
 }

@@ -1,31 +1,9 @@
 /**
- * @description - ActivityWatch - Event
+ * @description Interface for ActivityWatch Events
  */
 
-export default class Event {
-    private _timestamp: string;
-    private _duration: number;
-    private _data: { [k: string]: any };
-
-    constructor({
-        timestamp = new Date(),
-        duration,
-        data
-    }: { timestamp: Date, duration: number, data: { [k: string]: any } }) {
-        this._timestamp = timestamp.toISOString();
-        this._duration = duration;
-        this._data = data;
-    }
-
-    public get timestamp() {
-        return this._timestamp;
-    }
-
-    public get duration() {
-        return this._duration;
-    }
-
-    public get data() {
-        return this._data;
-    }
+export default interface Event {
+    timestamp: string;
+    duration: number;
+    data: { [k: string]: any };
 }

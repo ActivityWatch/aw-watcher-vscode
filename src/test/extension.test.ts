@@ -6,7 +6,7 @@
 // The module 'assert' provides assertion methods from node
 import * as assert from 'assert';
 import AWClient from '../resources/aw-client.js';
-import ProjectEvent from '../resources/event';
+import ProjectEvent from '../resources/coding.editor.project.event';
 
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
@@ -54,15 +54,15 @@ describe("AWClient", function () {
 
     describe('events', () => {
         it('[sendEvent] should send event without errors', function (done) {
-            const event = new ProjectEvent({
-                timestamp: new Date(),
+            const event: ProjectEvent = {
+                timestamp: new Date().toISOString(),
                 duration: 2,
                 data: {
                     editor: 'vs-code',
                     project: 'aw-extension',
                     language: 'ts'
                 }
-            });
+            };
 
             client.sendEvent(event)
                 .then(({ httpResponse, data }) => {
@@ -85,15 +85,15 @@ describe("AWClient", function () {
 
     describe('heartbeat', () => {
         it('[sendHeartbeat] should send heartbeat without errors', function (done) {
-            const event = new ProjectEvent({
-                timestamp: new Date(),
+            const event: ProjectEvent = {
+                timestamp: new Date().toISOString(),
                 duration: 2,
                 data: {
                     editor: 'vs-code',
                     project: 'aw-extension',
                     language: 'ts'
                 }
-            });
+            };
 
             client.sendHearbeat(event, 10)
                 .then(() => done())
