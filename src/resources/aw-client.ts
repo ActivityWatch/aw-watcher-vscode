@@ -1,4 +1,5 @@
 const request = require('request');
+import Event from './event';
 
 /**
  * @description Client for connecting to the ActivityWatch API
@@ -47,7 +48,7 @@ export default class AWClient {
                 .then(() => resolve('Created new bucket'))
                 .catch(({ err, httpResponse, data }) => {
                     // Server returns statusCode 304 if bucket existed
-                    if (httpResponse.statusCode === 304) {
+                    if (httpResponse && httpResponse.hasOwnProperty('statusCode') && httpResponse.statusCode === 304) {
                         resolve('Bucket already exists');
                     } else {
                         reject(err);
@@ -66,6 +67,23 @@ export default class AWClient {
         const apiMethod = `${this._bucket.id}`;
         
         return this._apiCall(apiMethod, {}, 'DELETE');
+    }
+
+    public sendEvent(event: Event) {
+        const apiMethod = `${this._bucket.id}/events`;
+        const args = {
+            timestamp: event.timestamp,
+            duration: event.duration,
+            data: event.data
+        };
+
+        return this._apiCall(apiMethod, args, 'POST');
+    }
+
+    public getEvents() {
+        const apiMethod = `${this._bucket.id}/events`;
+
+        return this._apiCall(apiMethod);
     }
 
     /**
