@@ -2,6 +2,7 @@
 // Import the necessary extensibility types to use in your code below
 import { Disposable, ExtensionContext, window, workspace } from 'vscode';
 import Bucket from './resources/bucket.js';
+import ProjectEvent from './resources/coding.editor.project.event';
 
 // This method is called when your extension is activated. Activation is
 // controlled by the activation events defined in package.json.
@@ -10,7 +11,6 @@ export function activate(context: ExtensionContext) {
     // Use the console to output diagnostic information (console.log) and errors (console.error).
     // This line of code will only be executed once when your extension is activated.
     console.log('Congratulations, your extension "ActivityWatch" is now active!');
-    console.log('Workspace: ', workspace.workspaceFolders);
 
     // create a new word counter
     let controller = new ActivityWatch();
@@ -25,7 +25,6 @@ class ActivityWatch {
 
     constructor() {
         this._bucket = new Bucket();
-        // this._bucket.getBucketList();
         this._bucket.initBucket('aw-watcher-coding', 'unknown', 'coding.editor.project')
             .then(console.log)
             .catch(console.error);
@@ -44,13 +43,28 @@ class ActivityWatch {
     }
 
     private _onEvent() {
-        console.log('_onEvent');
         const projectName = this._getProjectName();
         if (!projectName) {
             return this._handleError('project name not found');
         }
+        const codingLanguage = this._getFileLanguage();
+        if (!codingLanguage) {
+            return this._handleError('coding language not found');
+        }
 
-        console.log(projectName);
+        const event: ProjectEvent = {
+            timestamp: new Date().toISOString(),
+            duration: 10,
+            data: {
+                editor: 'vs-code',
+                language: codingLanguage,
+                project: projectName
+            }
+        };
+        console.log('Sending Hearbeat', event);
+        this._bucket.sendHearbeat(undefined, event, 10)
+            .then(() => console.log('Sent heartbeat', event))
+            .catch(({ err }) => this._handleError('Error while sending heartbeat'));
     }
 
     private _getProjectName(): string | undefined {
@@ -63,8 +77,18 @@ class ActivityWatch {
         return workspaceFolders[0].name;
     }
 
-    _handleError(err: string) {
+    private _getFileLanguage(): string | undefined {
+        const editor = window.activeTextEditor;
+        if (!editor) {
+            return this._handleError('Couldn\'t get current language');
+        }
+
+        return editor.document.languageId;
+    }
+
+    _handleError(err: string): undefined {
         window.showErrorMessage(err);
+        return;
     }
 /*
     private get _bucketId() {
