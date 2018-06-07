@@ -70,17 +70,16 @@ class AWClient {
      *   type: '<type>'
      * };
      * this._apiCall(apiMethod, args, 'POST')
-     *   .then((data, httpResponse, err) => console.log('Bucket created'))
-     *   .catch((err, httpResponse, data) => {
+     *   .then(({ data, httpResponse, err }) => console.log('Bucket created'))
+     *   .catch(({ data, httpResponse, err }) => {
      *     // Server returns statusCode 304 if bucket existed
-     *     if (httpResponse === 304) {
+     *     if (httpResponse.statusCode === 304) {
      *       console.log('Bucket existed');
      *     }
      *     else {
      *      console.error('Error while creating bucket', err);
      *     }
-     *   })
-     * }
+     *   });
      *
      * @param {string}  apiMethod   the name of the api method
      * @param {object}  args        all arguments passed as questionString/body
