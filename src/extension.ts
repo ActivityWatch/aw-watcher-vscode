@@ -1,8 +1,8 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the necessary extensibility types to use in your code below
 import { Disposable, ExtensionContext, window, workspace } from 'vscode';
-import Bucket from './resources/bucket.js';
-import ProjectEvent from './resources/coding.editor.project.event';
+import { AWClient } from './resources/aw-client';
+import Event from './resources_old/event';
 
 // This method is called when your extension is activated. Activation is
 // controlled by the activation events defined in package.json.
@@ -21,11 +21,15 @@ export function activate(context: ExtensionContext) {
 
 class ActivityWatch {
     private _disposable: Disposable;
-    private _bucket: Bucket;
+    private _client: AWClient;
+    private _bucketId = 'aw-watcher-vscode_test';
+    private _hostName = 'test';
+    private _clientName = 'aw-watcher-vscode';
+    private _eventType = 'coding.vscode';
 
     constructor() {
-        this._bucket = new Bucket();
-        this._bucket.initBucket('aw-watcher-coding', 'unknown', 'coding.editor.project')
+        this._client = new AWClient(this._clientName, true);
+        this._client.createBucket(this._bucketId, this._eventType, this._hostName)
             .then(console.log)
             .catch(console.error);
         
@@ -52,7 +56,7 @@ class ActivityWatch {
             return this._handleError('coding language not found');
         }
 
-        const event: ProjectEvent = {
+        const event: Event = {
             timestamp: new Date().toISOString(),
             duration: 10,
             data: {
@@ -62,7 +66,7 @@ class ActivityWatch {
             }
         };
         console.log('Sending Hearbeat', event);
-        this._bucket.sendHearbeat(undefined, event, 10)
+        this._client.heartbeat(this._bucketId, 10, event)
             .then(() => console.log('Sent heartbeat', event))
             .catch(({ err }) => this._handleError('Error while sending heartbeat'));
     }

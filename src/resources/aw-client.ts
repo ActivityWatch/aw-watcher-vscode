@@ -1,143 +1,106 @@
-const request = require('request');
-import Event from './event';
-import BucketInterface from './bucket.interface';
+import axios, { AxiosInstance } from 'axios';
 
-/**
- * @description Client for connecting to the ActivityWatch API
- */
+export interface Event {
+    timestamp: string;
+    duration: number;
+    data: { [k: string]: any };
+}
 
-export default class AWClient {
-    private _isTest: boolean;
+declare var module: any;
+const isNode = (typeof module !== 'undefined' && module.exports);
+     
 
-    constructor(isTest = true) {
-        this._isTest = isTest;
-    }
+class AWClient {
+    public clientname: string;
+    public testing: boolean;
+    public req: AxiosInstance;
 
-    public createBucket(bucket: BucketInterface): Promise<string> {
-        const apiMethod = `${bucket.id}`;
-        // const args = this._bucket;
-        const args = {
-            client: bucket.clientName,
-            hostname: bucket.hostName,
-            type: bucket.eventType
-        };
-
-        return new Promise((resolve, reject) => {
-            this._apiCall(apiMethod, args, 'POST')
-                .then(() => resolve('Created new bucket'))
-                .catch(({ err, httpResponse, data }) => {
-                    // Server returns statusCode 304 if bucket existed
-                    if (httpResponse && httpResponse.hasOwnProperty('statusCode') && httpResponse.statusCode === 304) {
-                        resolve('Bucket already exists');
-                    } else {
-                        reject(err);
-                    }
-                });
-        });
-    }
-
-    public getBucket(bucketId: string) {
-        const apiMethod = `${bucketId}`;
-
-        return this._apiCall(apiMethod);
-    }
-
-    public deleteBucket(bucketId: string) {
-        const apiMethod = `${bucketId}`;
-        
-        return this._apiCall(apiMethod, {}, 'DELETE');
-    }
-
-    public sendEvent(bucketId: string, event: Event) {
-        const apiMethod = `${bucketId}/events`;
-        const args = {
-            timestamp: event.timestamp,
-            duration: event.duration,
-            data: event.data
-        };
-
-        return this._apiCall(apiMethod, args, 'POST');
-    }
-
-    public getEvents(bucketId: string) {
-        const apiMethod = `${bucketId}/events`;
-
-        return this._apiCall(apiMethod);
-    }
-
-    public sendHearbeat(bucketId: string, event: Event, pulsetime: number) {
-        const apiMethod = `${bucketId}/heartbeat?pulsetime=${pulsetime}`;
-        const args = {
-            timestamp: event.timestamp,
-            duration: event.duration,
-            data: event.data
-        };
-
-        return this._apiCall(apiMethod, args, 'POST');
-    }
-
-    /**
-     * @description Makes an api call to the ActivityWatch API
-     * @example <caption>Example showing how to create a bucket</caption>
-     * const apiMethod = '<bucket_id>';
-     * const args = {
-     *   client: 'aw-watcher-<name>',
-     *   hostname: '<computer-name>',
-     *   type: '<type>'
-     * };
-     * this._apiCall(apiMethod, args, 'POST')
-     *   .then(({ data, httpResponse, err }) => console.log('Bucket created'))
-     *   .catch(({ data, httpResponse, err }) => {
-     *     // Server returns statusCode 304 if bucket existed
-     *     if (httpResponse.statusCode === 304) {
-     *       console.log('Bucket existed');
-     *     }
-     *     else {
-     *      console.error('Error while creating bucket', err);
-     *     }
-     *   });
-     * 
-     * @param {string}  apiMethod   the name of the api method
-     * @param {object}  args        all arguments passed as questionString/body
-     * @param {string}  httpMethod  the method to use (GET/POST/DELETE/PUT)
-     * @returns {Promise<{ err: string, httpResponse: { [k: string]: any }, data: { [k: string]: any } }>} Promise with object containing 'err', 'data', and 'httpResponse'
-     */
-    private _apiCall(apiMethod: string, args = {}, httpMethod = 'GET'): Promise<{ err: string, httpResponse: { [k: string]: any }, data: { [k: string]: any } }> {
-        const uri = `${this._apiEndpoint}${apiMethod}`;
-
-        const requestOptions: { [k: string]: any } = {
-            uri,
-            method: httpMethod,
-            json: true
-        };
-
-        switch (httpMethod) {
-            case 'GET':
-            case 'DELETE':
-                requestOptions.qs = args;
-                break;
-            case 'POST':
-            case 'PUT':
-                requestOptions.body = args;
+    constructor(clientname: string, testing: boolean, baseurl: string | undefined = undefined) {
+        this.clientname = clientname;
+        this.testing = testing;
+        if (baseurl === undefined){
+            let port = !testing ? 5600 : 5666;
+            baseurl = 'http://127.0.0.1:'+port;
         }
 
-        return new Promise((resolve, reject) => {
-            request(requestOptions, (err: string, httpResponse: { [k: string]: any }, data: object) => {
-                if (err || httpResponse.statusCode !== 200) {
-                    return reject({ err, httpResponse, data });
-                }
+        this.req = axios.create({
+          baseURL: baseurl+'/api',
+          timeout: 10000,
+          headers: (!isNode) ? {} : {'User-Agent': 'aw-client-js/0.1'}
+        });
 
-                resolve({ data, httpResponse, err });
-            });
+        // Make 304 not an error (necessary for create bucket requests)
+        this.req.interceptors.response.use(
+            response => {
+                return response;
+            }, err => {
+                if (err && err.response && err.response.status === 304) {
+                    return err.data;
+                } else {
+                    return Promise.reject(err);
+                }
+            }
+        );
+    }
+
+    info() {
+        return this.req.get('/0/info');
+    }
+
+    createBucket(bucket_id: string, type: string, hostname: string) {
+        return this.req.post('/0/buckets/'+bucket_id, {
+            client: this.clientname,
+            type: type,
+            hostname: hostname,
         });
     }
 
-    private get _apiEndpoint(): string {
-        return `${this._host}/api/0/buckets/`;
+    deleteBucket(bucket_id: string) {
+        return this.req.delete('/0/buckets/'+bucket_id+"?force=1");
     }
 
-    private get _host(): string {
-        const port = (this._isTest) ? '5666' : '5600';
-        return `http://localhost:${port}`;
+    getBuckets() {
+        return this.req.get("/0/buckets/");
+    }
+
+    getBucketInfo(bucket_id: string) {
+        return this.req.get("/0/buckets/" + bucket_id);
+    }
+
+    // TODO: check what type params should be
+    getEvents(bucket_id: string, params: any) {
+        return this.req.get("/0/buckets/" + bucket_id + "/events", {params: params});
+    }
+
+    // TODO: check what types starttime and endtime are
+    getEventCount(bucket_id: string, starttime: any, endtime: any) {
+        let params = {
+            starttime: starttime,
+            endtime: endtime,
+        };
+        return this.req.get("/0/buckets/" + bucket_id + "/events/count", {params: params});
+    }
+
+    // TODO: Check what type event is
+    insertEvent(bucket_id: string, event: Event) {
+        return this.insertEvents(bucket_id, [event]);
+    }
+
+    // TODO: Check what type events is
+    insertEvents(bucket_id: string, events: Array<Event>) {
+        return this.req.post('/0/buckets/' + bucket_id + "/events", events);
+    }
+
+    // TODO: Check what types pulsetime and data are
+    heartbeat(bucket_id: string, pulsetime: any, data: Event) {
+        return this.req.post('/0/buckets/' + bucket_id + "/heartbeat?pulsetime=" + pulsetime, data);
+    }
+
+    // TODO: Check what type timeperiods and query are
+    query(timeperiods: any, query: any) {
+        let data = { timeperiods: timeperiods, query: query };
+        return this.req.post('/0/query/', data);
     }
 }
+
+export { AWClient };
