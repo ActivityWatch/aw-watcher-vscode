@@ -5,7 +5,7 @@
     "version": "0.2.1",
     "repository": {
         "type": "git",
-        "url": "https://github.com/Otto-AA/aw-watcher-vscode.git"
+        "url": "https://github.com/Otto-AA/aw-watcher-vscode"
     },
     "publisher": "lindraupe",
     "author": {
@@ -46,13 +46,11 @@
         "typescript": "^2.6.1",
         "vscode": "^1.1.6",
         "tslint": "^5.8.0",
+        "mocha": "^5.2.0",
         "@types/node": "^7.0.43",
         "@types/mocha": "^2.2.42"
     },
     "dependencies": {
-        "axios": "^0.18.0",
-        "dialog": "^0.3.1",
-        "mocha": "^5.2.0",
-        "request": "^2.87.0"
+        "axios": "^0.18.0"
     }
 }
