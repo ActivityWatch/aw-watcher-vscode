@@ -21,7 +21,7 @@
     "categories": [
         "Other"
     ],
-    "icon": "./logo.png",
+    "icon": "logo.png",
     "activationEvents": [
         "*"
     ],
