@@ -21,6 +21,9 @@
     "categories": [
         "Other"
     ],
+    "keywords": [
+        "multi-root ready"
+    ],
     "icon": "logo.png",
     "activationEvents": [
         "*"

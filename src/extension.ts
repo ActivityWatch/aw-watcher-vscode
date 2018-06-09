@@ -3,7 +3,6 @@
 import { Disposable, ExtensionContext, commands, window, workspace, env } from 'vscode';
 import { AWClient, Event } from './resources/aw-client';
 import { hostname } from 'os';
-import { notDeepEqual } from 'assert';
 
 // This method is called when your extension is activated. Activation is
 // controlled by the activation events defined in package.json.
@@ -46,7 +45,6 @@ class ActivityWatch {
     private _bucketCreated: boolean = false;
 
     // Heartbeat handling
-    private _lastEvent: VSCodeEvent | undefined;
     private _pulseTime: number = 10;
 
     constructor() {
@@ -57,7 +55,6 @@ class ActivityWatch {
             eventType: 'coding.vscode'
         };
         this._bucket.id = `${this._bucket.clientName}_${this._bucket.hostName}`;
-        this._lastEvent = this._createEvent();
 
         // Create AWClient
         this._client = new AWClient(this._bucket.clientName, false);
@@ -65,6 +62,7 @@ class ActivityWatch {
         // subscribe to selection change events
         let subscriptions: Disposable[] = [];
         window.onDidChangeTextEditorSelection(this._onEvent, this, subscriptions);
+        window.onDidChangeTextEditorSelection(() => console.log('onDidChangeTextEditorSelection'));
         this._disposable = Disposable.from(...subscriptions);
     }
 
@@ -74,10 +72,6 @@ class ActivityWatch {
             .then(() => {
                 console.log('Created Bucket');
                 this._bucketCreated = true;
-
-                // Send heartbeat a bit more frequently than the pulse time 
-                setInterval(this._sendLastEvent.bind(this), (this._pulseTime * 1000) * 0.8);
-                this._sendLastEvent();
             })
             .catch(err => {
                 this._handleError("Couldn't create Bucket. Please make sure the server is running properly and then run the [Reload ActivityWatch] command.", true);
@@ -94,28 +88,9 @@ class ActivityWatch {
             return;
         }
 
-        // Create Event
+        // Create and send VSCodeEvent
         const event = this._createEvent();
-
-        try {
-            // If stored event differs send the stored event and then exchange it with the current event
-            if (this._lastEvent) {
-                notDeepEqual(event.data, this._lastEvent.data);
-            }
-            this._sendLastEvent();
-            this._lastEvent = event;
-        }
-        catch {
-            // Do nothing as an equal event is already stored
-        }
-    }
-
-    private _sendLastEvent() {
-        if (this._lastEvent) {
-            const event = this._lastEvent;
-            this._lastEvent = undefined;
-            return this._sendHeartbeat(event);
-        }
+        this._sendHeartbeat(event);
     }
 
     private _sendHeartbeat(event: VSCodeEvent) {
@@ -142,17 +117,40 @@ class ActivityWatch {
         if (!workspaceFolders || !workspaceFolders.length) {
             return this._handleError("Couldn't get current project name");
         }
+        else if (workspaceFolders.length === 1) {
+            return workspaceFolders[0].name;
+        }
+        else {
+            // Check if the current file path includes the name of any workspace
+            const filePath = this._getFilePath();
+            if (!filePath) {
+                return this._handleError("Couldn't get current project name");
+            }
+            const possibleProjectFolders = workspaceFolders.filter(({ name }) => filePath.includes(name));
 
-        // TODO: Check if multiple workspaces can be loaded and if there is a way to determine the active workspace folder
-        return workspaceFolders[0].name;
+            if (possibleProjectFolders.length === 1) {
+                return possibleProjectFolders[0].name;
+            }
+            else {
+                return this._handleError("Couldn't get current project name");
+            }
+        }
+    }
+
+    private _getFilePath(): string | undefined {
+        const editor = window.activeTextEditor;
+        if (!editor) {
+            return this._handleError("Couldn't get current file path");
+        }
+        
+        return editor.document.fileName;
     }
 
     private _getFileName(): string | undefined {
-        const editor = window.activeTextEditor;
-        if (!editor) {
+        const filePath = this._getFilePath();
+        if (!filePath) {
             return this._handleError("Couldn't get current file name");
         }
-        const filePath = editor.document.fileName;
 
         return filePath.substr(filePath.lastIndexOf('/') + 1);
     }
