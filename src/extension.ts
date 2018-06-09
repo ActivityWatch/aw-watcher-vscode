@@ -1,8 +1,8 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the necessary extensibility types to use in your code below
 import { Disposable, ExtensionContext, window, workspace } from 'vscode';
-import { AWClient } from './resources/aw-client';
-import Event from './resources_old/event';
+import { AWClient, Event } from './resources/aw-client';
+import { hostname } from 'os';
 
 // This method is called when your extension is activated. Activation is
 // controlled by the activation events defined in package.json.
@@ -22,16 +22,38 @@ export function activate(context: ExtensionContext) {
 class ActivityWatch {
     private _disposable: Disposable;
     private _client: AWClient;
-    private _bucketId = 'aw-watcher-vscode_test';
-    private _hostName = 'test';
-    private _clientName = 'aw-watcher-vscode';
-    private _eventType = 'coding.vscode';
+
+    // Bucket info
+    private _bucket: {
+        id: string;
+        hostName: string;
+        clientName: string;
+        eventType: string;
+    };
+    private _bucketCreated: boolean = false;
 
     constructor() {
-        this._client = new AWClient(this._clientName, true);
-        this._client.createBucket(this._bucketId, this._eventType, this._hostName)
-            .then(console.log)
-            .catch(console.error);
+        this._bucket = {
+            id: '',
+            hostName: hostname(),
+            clientName: 'aw-watcher-vscode',
+            eventType: 'coding.vscode'
+        };
+        this._bucket.id = `${this._bucket.clientName}_${this._bucket.hostName}`;
+
+        this._client = new AWClient(this._bucket.clientName, true);
+
+
+        // Create new Bucket (if not existing)
+        this._client.createBucket(this._bucket.id, this._bucket.eventType, this._bucket.hostName)
+            .then(() => {
+                console.log('Created Bucket');
+                this._bucketCreated = true;
+            })
+            .catch(err => {
+                this._handleError("Couldn't create Bucket. Maybe the server is not running", true);
+                console.error(err);
+            });
         
         // subscribe to selection change and editor activation events
         let subscriptions: Disposable[] = [];
@@ -47,6 +69,10 @@ class ActivityWatch {
     }
 
     private _onEvent() {
+        if (!this._bucketCreated) {
+            return;
+        }
+
         const projectName = this._getProjectName();
         if (!projectName) {
             return this._handleError('project name not found');
@@ -65,10 +91,9 @@ class ActivityWatch {
                 project: projectName
             }
         };
-        console.log('Sending Hearbeat', event);
-        this._client.heartbeat(this._bucketId, 10, event)
-            .then(() => console.log('Sent heartbeat', event))
-            .catch(({ err }) => this._handleError('Error while sending heartbeat'));
+        this._client.heartbeat(this._bucket.id, 10, event)
+            .then(() => console.log('Sent heartbeat', event))    
+            .catch(({ err }) => this._handleError('Error while sending heartbeat', true));
     }
 
     private _getProjectName(): string | undefined {
@@ -90,8 +115,8 @@ class ActivityWatch {
         return editor.document.languageId;
     }
 
-    _handleError(err: string): undefined {
-        window.showErrorMessage(err);
+    _handleError(err: string, isCritical = false): undefined {
+        window.showErrorMessage(`[ActivityWatch] ${err}`);
         return;
     }
 /*
