@@ -1,8 +1,9 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the necessary extensibility types to use in your code below
-import { Disposable, ExtensionContext, window, workspace } from 'vscode';
+import { Disposable, ExtensionContext, commands, window, workspace, env } from 'vscode';
 import { AWClient, Event } from './resources/aw-client';
 import { hostname } from 'os';
+import { notDeepEqual } from 'assert';
 
 // This method is called when your extension is activated. Activation is
 // controlled by the activation events defined in package.json.
@@ -12,11 +13,14 @@ export function activate(context: ExtensionContext) {
     // This line of code will only be executed once when your extension is activated.
     console.log('Congratulations, your extension "ActivityWatch" is now active!');
 
-    // create a new word counter
+    // Init ActivityWatch
     let controller = new ActivityWatch();
-
-    // Add to a list of disposables which are disposed when this extension is deactivated.
+    controller.init();
     context.subscriptions.push(controller);
+
+    // Command:Reload
+    const reloadCommand = commands.registerCommand('extension.reload', () => controller.init());
+    context.subscriptions.push(reloadCommand);
 }
 
 interface VSCodeEvent extends Event {
@@ -41,6 +45,10 @@ class ActivityWatch {
     };
     private _bucketCreated: boolean = false;
 
+    // Heartbeat handling
+    private _lastEvent: VSCodeEvent | undefined;
+    private _pulseTime: number = 10;
+
     constructor() {
         this._bucket = {
             id: '',
@@ -49,28 +57,33 @@ class ActivityWatch {
             eventType: 'coding.vscode'
         };
         this._bucket.id = `${this._bucket.clientName}_${this._bucket.hostName}`;
+        this._lastEvent = this._createEvent();
 
         this._client = new AWClient(this._bucket.clientName, false);
 
+        // subscribe to selection change and editor activation events
+        let subscriptions: Disposable[] = [];
+        window.onDidChangeTextEditorSelection(this._onEvent, this, subscriptions);
 
+        // create a combined disposable from both event subscriptions
+        this._disposable = Disposable.from(...subscriptions);
+    }
+
+    init() {
         // Create new Bucket (if not existing)
         this._client.createBucket(this._bucket.id, this._bucket.eventType, this._bucket.hostName)
             .then(() => {
                 console.log('Created Bucket');
                 this._bucketCreated = true;
+
+                // Send heartbeat a bit more frequently than the pulse time 
+                setInterval(this._sendLastEvent.bind(this), (this._pulseTime * 1000) * 0.8);
+                this._sendLastEvent();
             })
             .catch(err => {
-                this._handleError("Couldn't create Bucket. Please make sure the server is running properly.", true);
+                this._handleError("Couldn't create Bucket. Please make sure the server is running properly and then run the [Reload ActivityWatch] command.", true);
                 console.error(err);
             });
-        
-        // subscribe to selection change and editor activation events
-        let subscriptions: Disposable[] = [];
-        window.onDidChangeTextEditorSelection(this._onEvent, this, subscriptions);
-        window.onDidChangeActiveTextEditor(this._onEvent, this, subscriptions);
-
-        // create a combined disposable from both event subscriptions
-        this._disposable = Disposable.from(...subscriptions);
     }
 
     dispose() {
@@ -82,27 +95,46 @@ class ActivityWatch {
             return;
         }
 
-        const projectName = this._getProjectName();
-        const codingLanguage = this._getFileLanguage();
-        const fileName = this._getFileName();
+        // Create Event
+        const event = this._createEvent();
 
-        if (!projectName || !codingLanguage || !fileName) {
-            return this._handleError('error while creating event');
-        }
-
-        const event: VSCodeEvent = {
-            timestamp: new Date().toISOString(),
-            duration: 10,
-            data: {
-                editor: 'vs-code',
-                language: codingLanguage,
-                project: projectName,
-                file: fileName
+        // If stored event differs send the stored event and then exchange it with the current event
+        try {
+            if (this._lastEvent) {
+                notDeepEqual(event.data, this._lastEvent.data);
             }
-        };
-        this._client.heartbeat(this._bucket.id, 10, event)
+            this._sendLastEvent();
+            this._lastEvent = event;
+        }
+        catch {
+            // Do nothing as an equal event is already stored
+        }
+    }
+
+    private _sendLastEvent() {
+        if (this._lastEvent) {
+            return this._sendHeartbeat(this._lastEvent)
+                .then(() => this._lastEvent = undefined);
+        }
+    }
+
+    private _sendHeartbeat(event: VSCodeEvent) {
+        return this._client.heartbeat(this._bucket.id, this._pulseTime, event)
             .then(() => console.log('Sent heartbeat', event))    
             .catch(({ err }) => this._handleError('Error while sending heartbeat', true));
+    }
+
+    private _createEvent(): VSCodeEvent {
+        return {
+            timestamp: new Date().toISOString(),
+            duration: 0,
+            data: {
+                editor: env.appName,
+                language: this._getFileLanguage() || 'unknown',
+                project: this._getProjectName() || 'unknown',
+                file: this._getFileName() || 'unknown'
+            }
+        };
     }
 
     private _getProjectName(): string | undefined {
