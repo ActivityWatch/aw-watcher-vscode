@@ -1,21 +1,24 @@
-# activitywatch README
+# aw-watcher-vscode
 
-This is the README for your extension "activitywatch". After writing up a brief description, we recommend including the following sections.
+This extension allows the open source tracking tool [ActivityWatch](http://activitywatch.net/) to keep track of the projects and coding languages you use in Visual Code.
+
+The source code is visible at https://github.com/Otto-AA/aw-watcher-vscode
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+Sends following data to ActivityWatch:
+- current project name
+- coding language
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+To run this extension you will need to have a running ActivityWatch Server
 
+
+## Error reporting
+If you run into any errors or have feature requests, please open an issue at the [git repository](https://github.com/Otto-AA/aw-watcher-vscode).
+
+<!---
 ## Extension Settings
 
 Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
@@ -26,7 +29,6 @@ This extension contributes the following settings:
 
 * `myExtension.enable`: enable/disable this extension
 * `myExtension.thing`: set to `blah` to do something
-
 ## Known Issues
 
 Calling out known issues can help limit users opening duplicate issues against your extension.
@@ -63,3 +65,5 @@ Added features X, Y, and Z.
 * [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
 
 **Enjoy!**
+
+-->

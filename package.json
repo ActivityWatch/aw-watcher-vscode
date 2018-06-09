@@ -1,7 +1,7 @@
 {
-    "name": "activitywatch",
-    "displayName": "activitywatch",
-    "description": "",
+    "name": "aw-watcher-vscode",
+    "displayName": "aw-watcher-vscode",
+    "description": "vs-code extension for the open source tracking tool ActivityWatch",
     "version": "0.0.1",
     "publisher": "none",
     "engines": {
