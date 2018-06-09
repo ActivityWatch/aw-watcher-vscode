@@ -14,6 +14,7 @@
     "categories": [
         "Other"
     ],
+    "icon": "./logo.png",
     "activationEvents": [
         "*"
     ],
@@ -44,6 +45,5 @@
         "dialog": "^0.3.1",
         "mocha": "^5.2.0",
         "request": "^2.87.0"
-    },
-    "icon": "./logo.png"
+    }
 }
