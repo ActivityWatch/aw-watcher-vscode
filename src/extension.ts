@@ -19,6 +19,15 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(controller);
 }
 
+interface VSCodeEvent extends Event {
+    data: {
+        editor: string;
+        project: string;
+        language: string;
+        file: string;
+    }
+}
+
 class ActivityWatch {
     private _disposable: Disposable;
     private _client: AWClient;
@@ -41,7 +50,7 @@ class ActivityWatch {
         };
         this._bucket.id = `${this._bucket.clientName}_${this._bucket.hostName}`;
 
-        this._client = new AWClient(this._bucket.clientName, true);
+        this._client = new AWClient(this._bucket.clientName, false);
 
 
         // Create new Bucket (if not existing)
@@ -74,21 +83,21 @@ class ActivityWatch {
         }
 
         const projectName = this._getProjectName();
-        if (!projectName) {
-            return this._handleError('project name not found');
-        }
         const codingLanguage = this._getFileLanguage();
-        if (!codingLanguage) {
-            return this._handleError('coding language not found');
+        const fileName = this._getFileName();
+
+        if (!projectName || !codingLanguage || !fileName) {
+            return this._handleError('error while creating event');
         }
 
-        const event: Event = {
+        const event: VSCodeEvent = {
             timestamp: new Date().toISOString(),
             duration: 10,
             data: {
                 editor: 'vs-code',
                 language: codingLanguage,
-                project: projectName
+                project: projectName,
+                file: fileName
             }
         };
         this._client.heartbeat(this._bucket.id, 10, event)
@@ -104,6 +113,17 @@ class ActivityWatch {
 
         // TODO: Check if multiple workspaces can be loaded and if there is a way to determine the active workspace folder
         return workspaceFolders[0].name;
+    }
+
+    private _getFileName(): string | undefined {
+        const editor = window.activeTextEditor;
+        if (!editor) {
+            return this._handleError("Couldn't get current file name");
+        }
+        const filePath = editor.document.fileName;
+        const fileName = filePath.substr(filePath.lastIndexOf('/') + 1);
+
+        return fileName;
     }
 
     private _getFileLanguage(): string | undefined {
