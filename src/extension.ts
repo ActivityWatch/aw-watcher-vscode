@@ -60,7 +60,7 @@ class ActivityWatch {
                 this._bucketCreated = true;
             })
             .catch(err => {
-                this._handleError("Couldn't create Bucket. Maybe the server is not running", true);
+                this._handleError("Couldn't create Bucket. Please make sure the server is running properly.", true);
                 console.error(err);
             });
         
@@ -108,7 +108,7 @@ class ActivityWatch {
     private _getProjectName(): string | undefined {
         const workspaceFolders = workspace.workspaceFolders;
         if (!workspaceFolders || !workspaceFolders.length) {
-            return;
+            return this._handleError("Couldn't get current project name");
         }
 
         // TODO: Check if multiple workspaces can be loaded and if there is a way to determine the active workspace folder
@@ -136,7 +136,13 @@ class ActivityWatch {
     }
 
     _handleError(err: string, isCritical = false): undefined {
-        window.showErrorMessage(`[ActivityWatch] ${err}`);
+        if (isCritical) {
+            console.error('[ActivityWatch][handleError]', err);
+            window.showErrorMessage(`[ActivityWatch] ${err}`);
+        }
+        else {
+            console.warn('[AcitivtyWatch][handleError]', err);
+        }
         return;
     }
 /*
