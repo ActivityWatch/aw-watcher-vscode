@@ -48,7 +48,7 @@ Users appreciate release notes as you update your extension.
 
 Initial release of aw-watcher-vscode.
 
-### 0.1.0
+### 0.2.0
 
 Refined error handling and README
 
