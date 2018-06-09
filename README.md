@@ -9,10 +9,17 @@ The source code is visible at https://github.com/Otto-AA/aw-watcher-vscode
 Sends following data to ActivityWatch:
 - current project name
 - coding language
+- current file name
+
+Currently VS Code extensions don't support getting file/project names for non-editable files, therefore this results in the value "unknown" for those properties. (For instance when opening logo.png this happens)
 
 ## Requirements
 
-To run this extension you will need to have a running ActivityWatch Server
+To run this extension you will need to have a running ActivityWatch Server.
+
+## Commands
+#### Reload ActivityWatch
+Use this in case VS Code has been started before the AW server.
 
 
 ## Error reporting
@@ -32,22 +39,19 @@ This extension contributes the following settings:
 ## Known Issues
 
 Calling out known issues can help limit users opening duplicate issues against your extension.
-
+-->
 ## Release Notes
 
 Users appreciate release notes as you update your extension.
 
-### 1.0.0
+### 0.1.0
 
-Initial release of ...
+Initial release of aw-watcher-vscode.
 
-### 1.0.1
+### 0.1.0
 
-Fixed issue #.
+Refined error handling and README
 
-### 1.1.0
-
-Added features X, Y, and Z.
 
 -----------------------------------------------------------------------------------------------------------
 

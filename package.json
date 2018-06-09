@@ -8,12 +8,20 @@
         "url": "https://github.com/Otto-AA/aw-watcher-vscode.git"
     },
     "publisher": "lindraupe",
+    "author": {
+        "name": "A_A",
+        "url": "http://aapianomusic.bplaced.net"
+    },
+    "bugs": {
+        "url": "https://github.com/Otto-AA/aw-watcher-vscode/issues"
+    },
     "engines": {
         "vscode": "^1.23.0"
     },
     "categories": [
         "Other"
     ],
+    "icon": "./logo.png",
     "activationEvents": [
         "*"
     ],
@@ -44,6 +52,5 @@
         "dialog": "^0.3.1",
         "mocha": "^5.2.0",
         "request": "^2.87.0"
-    },
-    "icon": "./logo.png"
+    }
 }
