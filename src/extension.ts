@@ -59,13 +59,12 @@ class ActivityWatch {
         this._bucket.id = `${this._bucket.clientName}_${this._bucket.hostName}`;
         this._lastEvent = this._createEvent();
 
+        // Create AWClient
         this._client = new AWClient(this._bucket.clientName, false);
 
-        // subscribe to selection change and editor activation events
+        // subscribe to selection change events
         let subscriptions: Disposable[] = [];
         window.onDidChangeTextEditorSelection(this._onEvent, this, subscriptions);
-
-        // create a combined disposable from both event subscriptions
         this._disposable = Disposable.from(...subscriptions);
     }
 
@@ -98,8 +97,8 @@ class ActivityWatch {
         // Create Event
         const event = this._createEvent();
 
-        // If stored event differs send the stored event and then exchange it with the current event
         try {
+            // If stored event differs send the stored event and then exchange it with the current event
             if (this._lastEvent) {
                 notDeepEqual(event.data, this._lastEvent.data);
             }
@@ -113,8 +112,9 @@ class ActivityWatch {
 
     private _sendLastEvent() {
         if (this._lastEvent) {
-            return this._sendHeartbeat(this._lastEvent)
-                .then(() => this._lastEvent = undefined);
+            const event = this._lastEvent;
+            this._lastEvent = undefined;
+            return this._sendHeartbeat(event);
         }
     }
 
@@ -153,15 +153,14 @@ class ActivityWatch {
             return this._handleError("Couldn't get current file name");
         }
         const filePath = editor.document.fileName;
-        const fileName = filePath.substr(filePath.lastIndexOf('/') + 1);
 
-        return fileName;
+        return filePath.substr(filePath.lastIndexOf('/') + 1);
     }
 
     private _getFileLanguage(): string | undefined {
         const editor = window.activeTextEditor;
         if (!editor) {
-            return this._handleError('Couldn\'t get current language');
+            return this._handleError("Couldn't get current language");
         }
 
         return editor.document.languageId;
@@ -177,17 +176,4 @@ class ActivityWatch {
         }
         return;
     }
-/*
-    private get _bucketId() {
-        return 'aw-watch-vscode';
-    }
-
-    private get _clientId() {
-        return 'aw-watch-vscode';
-    }
-
-    private get _type() {
-        return 'vscode.current.workspace';
-    }
-*/
 }
