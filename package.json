@@ -7,7 +7,7 @@
         "type": "git",
         "url": "git://github.com/Otto-AA/aw-watcher-vscode.git"
     },
-    "publisher": "none",
+    "publisher": "lindraupe",
     "engines": {
         "vscode": "^1.23.0"
     },
