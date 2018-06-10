@@ -50,11 +50,15 @@ Initial release of aw-watcher-vscode.
 
 ### 0.2.0
 
-Refined error handling and README
+Refined error handling and README.
 
 ### 0.3.0
 
-Refined error handling and heartbeat logic
+Refined error handling and heartbeat logic.
+
+#### 0.3.1
+
+Added maxHeartbeatsPerSec configuration
 
 
 <!---

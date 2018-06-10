@@ -10,3 +10,9 @@ Refined error handling and README
 ### 0.3.0
 
 Refined error handling and heartbeat logic
+
+#### 0.3.1
+
+Added maxHeartbeatsPerSec configuration
+
+<!--- https://keepachangelog.com/en/1.0.0/ -->
