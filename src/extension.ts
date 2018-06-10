@@ -45,7 +45,9 @@ class ActivityWatch {
     private _bucketCreated: boolean = false;
 
     // Heartbeat handling
-    private _pulseTime: number = 10;
+    private _pulseTime: number = 20;
+    private _lastFilePath: string = '';
+    private _lastHeartbeatTime: number = 0; // in seconds
 
     constructor() {
         this._bucket = {
@@ -92,7 +94,15 @@ class ActivityWatch {
         // Create and send VSCodeEvent
         try {
             const event = this._createEvent();
-            this._sendHeartbeat(event);
+            const filePath = this._getFilePath();
+            const curTime = new Date().getSeconds();
+            
+            // Send heartbeat if file changed or enough time passed
+            if (filePath !== this._lastFilePath || this._lastHeartbeatTime + (this._pulseTime * 0.5) < curTime) {
+                this._lastFilePath = filePath;
+                this._lastHeartbeatTime = curTime;
+                this._sendHeartbeat(event);
+            }    
         }
         catch (err) {
             this._handleError(err);
