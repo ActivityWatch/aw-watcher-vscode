@@ -1,10 +1,10 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the necessary extensibility types to use in your code below
-import { Disposable, ExtensionContext, commands, window, workspace, env } from 'vscode';
+import { Disposable, ExtensionContext, commands, window, workspace, Uri, env } from 'vscode';
 import { AWClient, Event } from './resources/aw-client';
 import { hostname } from 'os';
-
 // This method is called when your extension is activated. Activation is
+
 // controlled by the activation events defined in package.json.
 export function activate(context: ExtensionContext) {
 
@@ -62,7 +62,7 @@ class ActivityWatch {
         // subscribe to selection change events
         let subscriptions: Disposable[] = [];
         window.onDidChangeTextEditorSelection(this._onEvent, this, subscriptions);
-        window.onDidChangeTextEditorSelection(() => console.log('onDidChangeTextEditorSelection'));
+        window.onDidChangeActiveTextEditor(this._onEvent, this, subscriptions);
         this._disposable = Disposable.from(...subscriptions);
     }
 
@@ -75,6 +75,7 @@ class ActivityWatch {
             })
             .catch(err => {
                 this._handleError("Couldn't create Bucket. Please make sure the server is running properly and then run the [Reload ActivityWatch] command.", true);
+                this._bucketCreated = false;
                 console.error(err);
             });
     }
@@ -89,8 +90,13 @@ class ActivityWatch {
         }
 
         // Create and send VSCodeEvent
-        const event = this._createEvent();
-        this._sendHeartbeat(event);
+        try {
+            const event = this._createEvent();
+            this._sendHeartbeat(event);
+        }
+        catch (err) {
+            this._handleError(err);
+        }
     }
 
     private _sendHeartbeat(event: VSCodeEvent) {
@@ -105,60 +111,43 @@ class ActivityWatch {
             duration: 0,
             data: {
                 editor: env.appName,
-                language: this._getFileLanguage() || 'unknown',
-                project: this._getProjectName() || 'unknown',
-                file: this._getFileName() || 'unknown'
+                language: this._getFileLanguage(),
+                project: this._getProjectName(),
+                file: this._getFileName()
             }
         };
     }
 
-    private _getProjectName(): string | undefined {
-        const workspaceFolders = workspace.workspaceFolders;
-        if (!workspaceFolders || !workspaceFolders.length) {
-            return this._handleError("Couldn't get current project name");
+    private _getProjectName(): string {
+        const filePath = this._getFilePath();
+        const uri = Uri.file(filePath);
+        const workspaceFolder = workspace.getWorkspaceFolder(uri);
+        if (!workspaceFolder || !workspaceFolder.hasOwnProperty('name')) {
+            throw new Error("Couldn't get project name");
         }
-        else if (workspaceFolders.length === 1) {
-            return workspaceFolders[0].name;
-        }
-        else {
-            // Check if the current file path includes the name of any workspace
-            const filePath = this._getFilePath();
-            if (!filePath) {
-                return this._handleError("Couldn't get current project name");
-            }
-            const possibleProjectFolders = workspaceFolders.filter(({ name }) => filePath.includes(name));
 
-            if (possibleProjectFolders.length === 1) {
-                return possibleProjectFolders[0].name;
-            }
-            else {
-                return this._handleError("Couldn't get current project name");
-            }
-        }
+        return workspaceFolder.name;
     }
 
-    private _getFilePath(): string | undefined {
+    private _getFilePath(): string {
         const editor = window.activeTextEditor;
         if (!editor) {
-            return this._handleError("Couldn't get current file path");
+            throw new Error("Couldn't get current file path");
         }
         
         return editor.document.fileName;
     }
 
-    private _getFileName(): string | undefined {
+    private _getFileName(): string {
         const filePath = this._getFilePath();
-        if (!filePath) {
-            return this._handleError("Couldn't get current file name");
-        }
 
         return filePath.substr(filePath.lastIndexOf('/') + 1);
     }
 
-    private _getFileLanguage(): string | undefined {
+    private _getFileLanguage(): string {
         const editor = window.activeTextEditor;
         if (!editor) {
-            return this._handleError("Couldn't get current language");
+            throw new Error("Couldn't get current language");
         }
 
         return editor.document.languageId;
