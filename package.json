@@ -35,7 +35,18 @@
                 "command": "extension.reload",
                 "title": "Reload ActivityWatch"
             }
-        ]
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "aw-watcher-vscode-extension configuration",
+            "properties": {
+                "aw-watcher-vscode.maxHeartbeatsPerSec": {
+                    "type": "number",
+                    "default": 1,
+                    "description": "Controls the maximum number of hearbeats sent per second."
+                }
+            }
+        }
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",

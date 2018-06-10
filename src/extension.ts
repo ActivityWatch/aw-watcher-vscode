@@ -48,7 +48,7 @@ class ActivityWatch {
     private _pulseTime: number = 20;
     private _maxHeartbeatsPerSec: number = 1;
     private _lastFilePath: string = '';
-    private _lastHeartbeatTime: number = 0; // in seconds
+    private _lastHeartbeatTime: number = 0; // Date.getTime()
 
     constructor() {
         this._bucket = {
@@ -81,6 +81,16 @@ class ActivityWatch {
                 this._bucketCreated = false;
                 console.error(err);
             });
+        
+        this.loadConfigurations();
+    }
+
+    public loadConfigurations() {
+        const extConfigurations = workspace.getConfiguration('aw-watcher-vscode');
+        const maxHeartbeatsPerSec = extConfigurations.get('maxHeartbeatsPerSec');
+        if (maxHeartbeatsPerSec) {
+            this._maxHeartbeatsPerSec = maxHeartbeatsPerSec as number;
+        }    
     }
 
     public dispose() {
@@ -96,10 +106,10 @@ class ActivityWatch {
         try {
             const event = this._createEvent();
             const filePath = this._getFilePath();
-            const curTime = new Date().getSeconds();
+            const curTime = new Date().getTime();
             
             // Send heartbeat if file changed or enough time passed
-            if (filePath !== this._lastFilePath || this._lastHeartbeatTime + (1 / this._maxHeartbeatsPerSec) < curTime) {
+            if (filePath !== this._lastFilePath || this._lastHeartbeatTime + (1000 / (this._maxHeartbeatsPerSec)) < curTime) {
                 this._lastFilePath = filePath;
                 this._lastHeartbeatTime = curTime;
                 this._sendHeartbeat(event);
