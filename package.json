@@ -2,7 +2,7 @@
     "name": "aw-watcher-vscode",
     "displayName": "aw-watcher-vscode",
     "description": "vs-code extension for the open source tracking tool ActivityWatch",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "repository": {
         "type": "git",
         "url": "https://github.com/Otto-AA/aw-watcher-vscode"
