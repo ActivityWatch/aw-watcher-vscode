@@ -1,7 +1,12 @@
 # Change Log
-All notable changes to the "activitywatch" extension will be documented in this file.
+### 0.1.0
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+Initial release of aw-watcher-vscode.
 
-## [Unreleased]
-- Initial release
+### 0.2.0
+
+Refined error handling and README
+
+### 0.3.0
+
+Refined error handling and heartbeat logic
