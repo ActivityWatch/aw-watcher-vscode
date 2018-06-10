@@ -28,7 +28,7 @@ interface VSCodeEvent extends Event {
         project: string;
         language: string;
         file: string;
-    }
+    };
 }
 
 class ActivityWatch {
@@ -46,6 +46,7 @@ class ActivityWatch {
 
     // Heartbeat handling
     private _pulseTime: number = 20;
+    private _maxHeartbeatsPerSec: number = 1;
     private _lastFilePath: string = '';
     private _lastHeartbeatTime: number = 0; // in seconds
 
@@ -68,7 +69,7 @@ class ActivityWatch {
         this._disposable = Disposable.from(...subscriptions);
     }
 
-    init() {
+    public init() {
         // Create new Bucket (if not existing)
         this._client.createBucket(this._bucket.id, this._bucket.eventType, this._bucket.hostName)
             .then(() => {
@@ -82,7 +83,7 @@ class ActivityWatch {
             });
     }
 
-    dispose() {
+    public dispose() {
         this._disposable.dispose();
     }
 
@@ -98,11 +99,11 @@ class ActivityWatch {
             const curTime = new Date().getSeconds();
             
             // Send heartbeat if file changed or enough time passed
-            if (filePath !== this._lastFilePath || this._lastHeartbeatTime + (this._pulseTime * 0.5) < curTime) {
+            if (filePath !== this._lastFilePath || this._lastHeartbeatTime + (1 / this._maxHeartbeatsPerSec) < curTime) {
                 this._lastFilePath = filePath;
                 this._lastHeartbeatTime = curTime;
                 this._sendHeartbeat(event);
-            }    
+            }
         }
         catch (err) {
             this._handleError(err);
@@ -163,7 +164,7 @@ class ActivityWatch {
         return editor.document.languageId;
     }
 
-    _handleError(err: string, isCritical = false): undefined {
+    private _handleError(err: string, isCritical = false): undefined {
         if (isCritical) {
             console.error('[ActivityWatch][handleError]', err);
             window.showErrorMessage(`[ActivityWatch] ${err}`);
