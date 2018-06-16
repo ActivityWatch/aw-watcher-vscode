@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the necessary extensibility types to use in your code below
 import { Disposable, ExtensionContext, commands, window, workspace, Uri, env } from 'vscode';
-import { AWClient, Event } from './resources/aw-client';
+import { AWClient, Event } from '../aw-client-js/src/aw-client';
 import { hostname } from 'os';
 // This method is called when your extension is activated. Activation is
 

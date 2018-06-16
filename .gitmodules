@@ -1,0 +1,3 @@
+[submodule "aw-client-js"]
+	path = aw-client-js
+	url = https://github.com/ActivityWatch/aw-client-js.git
