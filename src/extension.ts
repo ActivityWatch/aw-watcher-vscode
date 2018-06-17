@@ -1,19 +1,16 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the necessary extensibility types to use in your code below
-import { Disposable, ExtensionContext, commands, window, workspace, Uri, env } from 'vscode';
+import { Disposable, ExtensionContext, commands, window, workspace, Uri } from 'vscode';
 import { AWClient, Event } from '../aw-client-js/src/aw-client';
 import { hostname } from 'os';
-// This method is called when your extension is activated. Activation is
 
+// This method is called when your extension is activated. Activation is
 // controlled by the activation events defined in package.json.
 export function activate(context: ExtensionContext) {
-
-    // Use the console to output diagnostic information (console.log) and errors (console.error).
-    // This line of code will only be executed once when your extension is activated.
     console.log('Congratulations, your extension "ActivityWatch" is now active!');
 
     // Init ActivityWatch
-    let controller = new ActivityWatch();
+    const controller = new ActivityWatch();
     controller.init();
     context.subscriptions.push(controller);
 
@@ -61,7 +58,7 @@ class ActivityWatch {
         // Create AWClient
         this._client = new AWClient(this._bucket.clientName, false);
 
-        // subscribe to selection change events
+        // subscribe to VS Code Events
         let subscriptions: Disposable[] = [];
         window.onDidChangeTextEditorSelection(this._onEvent, this, subscriptions);
         window.onDidChangeActiveTextEditor(this._onEvent, this, subscriptions);
@@ -103,7 +100,7 @@ class ActivityWatch {
 
         // Create and send VSCodeEvent
         try {
-            const event = this._createEvent();
+            const heartbeat = this._createHeartbeat();
             const filePath = this._getFilePath();
             const curTime = new Date().getTime();
             
@@ -111,7 +108,7 @@ class ActivityWatch {
             if (filePath !== this._lastFilePath || this._lastHeartbeatTime + (1000 / (this._maxHeartbeatsPerSec)) < curTime) {
                 this._lastFilePath = filePath;
                 this._lastHeartbeatTime = curTime;
-                this._sendHeartbeat(event);
+                this._sendHeartbeat(heartbeat);
             }
         }
         catch (err) {
@@ -125,7 +122,7 @@ class ActivityWatch {
             .catch(({ err }) => this._handleError('Error while sending heartbeat', true));
     }
 
-    private _createEvent(): VSCodeEvent {
+    private _createHeartbeat(): VSCodeEvent {
         return {
             timestamp: new Date().toISOString(),
             duration: 0,
