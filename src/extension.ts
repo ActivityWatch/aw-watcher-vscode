@@ -24,7 +24,6 @@ export function activate(context: ExtensionContext) {
 
 interface VSCodeEvent extends Event {
     data: {
-        editor: string;
         project: string;
         language: string;
         file: string;
@@ -55,7 +54,7 @@ class ActivityWatch {
             id: '',
             hostName: hostname(),
             clientName: 'aw-watcher-vscode',
-            eventType: 'coding.vscode'
+            eventType: 'app.editor.activity'
         };
         this._bucket.id = `${this._bucket.clientName}_${this._bucket.hostName}`;
 
@@ -131,23 +130,22 @@ class ActivityWatch {
             timestamp: new Date().toISOString(),
             duration: 0,
             data: {
-                editor: env.appName,
                 language: this._getFileLanguage(),
-                project: this._getProjectName(),
-                file: this._getFileName()
+                project: this._getProjectFolder(),
+                file: this._getFilePath()
             }
         };
     }
 
-    private _getProjectName(): string {
+    private _getProjectFolder(): string {
         const filePath = this._getFilePath();
         const uri = Uri.file(filePath);
         const workspaceFolder = workspace.getWorkspaceFolder(uri);
-        if (!workspaceFolder || !workspaceFolder.hasOwnProperty('name')) {
-            throw new Error("Couldn't get project name");
+        if (!workspaceFolder) {
+            throw new Error("Couldn't get project path");
         }
 
-        return workspaceFolder.name;
+        return workspaceFolder.uri.path;
     }
 
     private _getFilePath(): string {
@@ -157,12 +155,6 @@ class ActivityWatch {
         }
         
         return editor.document.fileName;
-    }
-
-    private _getFileName(): string {
-        const filePath = this._getFilePath();
-
-        return filePath.substr(filePath.lastIndexOf('/') + 1);
     }
 
     private _getFileLanguage(): string {
