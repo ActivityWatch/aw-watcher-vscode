@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the necessary extensibility types to use in your code below
 import { Disposable, ExtensionContext, commands, window, workspace, Uri } from 'vscode';
-import { AWClient, Event } from '../aw-client-js/src/aw-client';
+import { AWClient, AppEditorActivityHeartbeat } from '../aw-client-js/src/aw-client';
 import { hostname } from 'os';
 
 // This method is called when your extension is activated. Activation is
@@ -17,14 +17,6 @@ export function activate(context: ExtensionContext) {
     // Command:Reload
     const reloadCommand = commands.registerCommand('extension.reload', () => controller.init());
     context.subscriptions.push(reloadCommand);
-}
-
-interface VSCodeEvent extends Event {
-    data: {
-        project: string;
-        language: string;
-        file: string;
-    };
 }
 
 class ActivityWatch {
@@ -98,7 +90,7 @@ class ActivityWatch {
             return;
         }
 
-        // Create and send VSCodeEvent
+        // Create and send heartbeat
         try {
             const heartbeat = this._createHeartbeat();
             const filePath = this._getFilePath();
@@ -116,13 +108,13 @@ class ActivityWatch {
         }
     }
 
-    private _sendHeartbeat(event: VSCodeEvent) {
-        return this._client.heartbeat(this._bucket.id, this._pulseTime, event)
-            .then(() => console.log('Sent heartbeat', event))    
+    private _sendHeartbeat(heartbeat: AppEditorActivityHeartbeat) {
+        return this._client.heartbeat(this._bucket.id, this._pulseTime, heartbeat)
+            .then(() => console.log('Sent heartbeat', heartbeat))    
             .catch(({ err }) => this._handleError('Error while sending heartbeat', true));
     }
 
-    private _createHeartbeat(): VSCodeEvent {
+    private _createHeartbeat(): AppEditorActivityHeartbeat {
         return {
             timestamp: new Date().toISOString(),
             duration: 0,
