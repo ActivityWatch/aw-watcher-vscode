@@ -106,7 +106,7 @@ class ActivityWatch {
             
             // Send heartbeat if file changed or enough time passed
             if (filePath !== this._lastFilePath || this._lastHeartbeatTime + (1000 / (this._maxHeartbeatsPerSec)) < curTime) {
-                this._lastFilePath = filePath;
+                this._lastFilePath = filePath || 'unknown';
                 this._lastHeartbeatTime = curTime;
                 this._sendHeartbeat(heartbeat);
             }
@@ -127,37 +127,40 @@ class ActivityWatch {
             timestamp: new Date().toISOString(),
             duration: 0,
             data: {
-                language: this._getFileLanguage(),
-                project: this._getProjectFolder(),
-                file: this._getFilePath()
+                language: this._getFileLanguage() || 'unknown',
+                project: this._getProjectFolder() || 'unknown',
+                file: this._getFilePath() || 'unknown'
             }
         };
     }
 
-    private _getProjectFolder(): string {
+    private _getProjectFolder(): string | undefined {
         const filePath = this._getFilePath();
+        if (!filePath) {
+            return;
+        }
         const uri = Uri.file(filePath);
         const workspaceFolder = workspace.getWorkspaceFolder(uri);
         if (!workspaceFolder) {
-            throw new Error("Couldn't get project path");
+            return;
         }
 
         return workspaceFolder.uri.path;
     }
 
-    private _getFilePath(): string {
+    private _getFilePath(): string | undefined {
         const editor = window.activeTextEditor;
         if (!editor) {
-            throw new Error("Couldn't get current file path");
+            return;
         }
         
         return editor.document.fileName;
     }
 
-    private _getFileLanguage(): string {
+    private _getFileLanguage(): string | undefined {
         const editor = window.activeTextEditor;
         if (!editor) {
-            throw new Error("Couldn't get current language");
+            return;
         }
 
         return editor.document.languageId;
