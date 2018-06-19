@@ -5,15 +5,12 @@
     "version": "0.3.2",
     "repository": {
         "type": "git",
-        "url": "https://github.com/Otto-AA/aw-watcher-vscode"
+        "url": "https://github.com/ActivityWatch/aw-watcher-vscode"
     },
     "publisher": "lindraupe",
-    "author": {
-        "name": "A_A",
-        "url": "http://aapianomusic.bplaced.net"
-    },
+    "author": "ActivityWatch Developers",
     "bugs": {
-        "url": "https://github.com/Otto-AA/aw-watcher-vscode/issues"
+        "url": "https://github.com/ActivityWatch/aw-watcher-vscode/issues"
     },
     "engines": {
         "vscode": "^1.23.0"
