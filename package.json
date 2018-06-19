@@ -21,7 +21,7 @@
     "keywords": [
         "multi-root ready"
     ],
-    "icon": "logo.png",
+    "icon": "media/logo/logo-128.png",
     "activationEvents": [
         "*"
     ],
