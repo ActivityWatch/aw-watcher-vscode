@@ -2,7 +2,7 @@
 
 This extension allows the open source tracking tool [ActivityWatch](http://activitywatch.net/) to keep track of the projects and coding languages you use in Visual Code.
 
-The source code is visible at https://github.com/Otto-AA/aw-watcher-vscode
+The source code is visible at https://github.com/ActivityWatch/aw-watcher-vscode
 
 ## Features
 
@@ -23,7 +23,7 @@ Use this in case VS Code has been started before the AW server.
 
 
 ## Error reporting
-If you run into any errors or have feature requests, please open an issue at the [git repository](https://github.com/Otto-AA/aw-watcher-vscode).
+If you run into any errors or have feature requests, please open an issue at the [git repository](https://github.com/ActivityWatch/aw-watcher-vscode).
 
 <!---
 ## Extension Settings
