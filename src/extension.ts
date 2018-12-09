@@ -127,10 +127,25 @@ class ActivityWatch {
             duration: 0,
             data: {
                 language: this._getFileLanguage() || 'unknown',
+                projectName: this._getProjectName() || 'unknown',
                 project: this._getProjectFolder() || 'unknown',
                 file: this._getFilePath() || 'unknown'
             }
         };
+    }
+
+    private _getProjectName(): string | undefined {
+        const filePath = this._getFilePath();
+        if (!filePath) {
+            return;
+        }
+        const uri = Uri.file(filePath);
+        const workspaceFolder = workspace.getWorkspaceFolder(uri);
+        if (!workspaceFolder || !workspaceFolder.hasOwnProperty('name')) {
+            return;
+        }
+
+        return workspaceFolder.name;
     }
 
     private _getProjectFolder(): string | undefined {
