@@ -59,9 +59,13 @@ class ActivityWatch {
 
     public init() {
         // Create new Bucket (if not existing)
-        this._client.createBucket(this._bucket.id, this._bucket.eventType, this._bucket.hostName)
-            .then(() => {
-                console.log('Created Bucket');
+        this._client.ensureBucket(this._bucket.id, this._bucket.eventType, this._bucket.hostName)
+            .then((res) => {
+                if (res.alreadyExist) {
+                    console.log('Bucket already exists');
+                } else {
+                    console.log('Created Bucket');
+                }
                 this._bucketCreated = true;
             })
             .catch(err => {
