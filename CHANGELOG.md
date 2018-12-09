@@ -15,4 +15,8 @@ Refined error handling and heartbeat logic
 
 Added maxHeartbeatsPerSec configuration
 
+#### 0.3.3
+
+Fixed security vulnerability of an outdated dependency
+
 <!--- https://keepachangelog.com/en/1.0.0/ -->
