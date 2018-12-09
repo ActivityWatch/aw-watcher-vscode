@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the necessary extensibility types to use in your code below
 import { Disposable, ExtensionContext, commands, window, workspace, Uri } from 'vscode';
-import { AWClient, AppEditorActivityHeartbeat } from '../aw-client-js/src/aw-client';
+import { AWClient, AppEditorEvent } from '../aw-client-js/src/aw-client';
 import { hostname } from 'os';
 
 // This method is called when your extension is activated. Activation is
@@ -108,15 +108,18 @@ class ActivityWatch {
         }
     }
 
-    private _sendHeartbeat(heartbeat: AppEditorActivityHeartbeat) {
-        return this._client.heartbeat(this._bucket.id, this._pulseTime, heartbeat)
-            .then(() => console.log('Sent heartbeat', heartbeat))    
-            .catch(({ err }) => this._handleError('Error while sending heartbeat', true));
+    private _sendHeartbeat(event: AppEditorEvent) {
+        return this._client.heartbeat(this._bucket.id, this._pulseTime, event)
+            .then(() => console.log('Sent heartbeat', event))    
+            .catch(({ err }) => {
+                console.error('sendHeartbeat error: ', err);
+                this._handleError('Error while sending heartbeat', true);
+            });
     }
 
-    private _createHeartbeat(): AppEditorActivityHeartbeat {
+    private _createHeartbeat(): AppEditorEvent {
         return {
-            timestamp: new Date().toISOString(),
+            timestamp: new Date(),
             duration: 0,
             data: {
                 language: this._getFileLanguage() || 'unknown',
