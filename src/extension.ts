@@ -48,7 +48,7 @@ class ActivityWatch {
         this._bucket.id = `${this._bucket.clientName}_${this._bucket.hostName}`;
 
         // Create AWClient
-        this._client = new AWClient(this._bucket.clientName, false);
+        this._client = new AWClient(this._bucket.clientName, { testing: false });
 
         // subscribe to VS Code Events
         let subscriptions: Disposable[] = [];
