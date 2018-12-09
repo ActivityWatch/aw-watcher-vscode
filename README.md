@@ -60,6 +60,19 @@ Refined error handling and heartbeat logic.
 
 Added maxHeartbeatsPerSec configuration
 
+#### 0.3.3
+
+Fixed security vulnerability of an outdated dependency
+
+#### 0.4.0
+
+update submodules aw-client-js and media to latest
+
+fix the extension to work with the latest aw-client:
+- AppEditorActivityHeartbeat --> AppEditorEvent
+- createBucket --> ensureBucket
+- options object in AWClient constructor
+- timestamp should be a Date not a string
 
 <!---
 
