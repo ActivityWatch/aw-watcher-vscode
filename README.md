@@ -74,6 +74,10 @@ fix the extension to work with the latest aw-client:
 - options object in AWClient constructor
 - timestamp should be a Date not a string
 
+#### 0.4.1
+
+Update aw-client-js, media and npm dependencies
+
 <!---
 
 -----------------------------------------------------------------------------------------------------------
