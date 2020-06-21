@@ -69,7 +69,7 @@ Fixed security vulnerability of an outdated dependency
 update submodules aw-client-js and media to latest
 
 fix the extension to work with the latest aw-client:
-- AppEditorActivityHeartbeat --> AppEditorEvent
+- AppEditorActivityHeartbeat --> IAppEditorEvent
 - createBucket --> ensureBucket
 - options object in AWClient constructor
 - timestamp should be a Date not a string
