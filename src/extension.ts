@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the necessary extensibility types to use in your code below
 import { Disposable, ExtensionContext, commands, window, workspace, Uri } from 'vscode';
-import { AWClient, AppEditorEvent } from '../aw-client-js/src/aw-client';
+import { AWClient, IAppEditorEvent } from '../aw-client-js/src/aw-client';
 import { hostname } from 'os';
 
 // This method is called when your extension is activated. Activation is
@@ -73,7 +73,7 @@ class ActivityWatch {
                 this._bucketCreated = false;
                 console.error(err);
             });
-        
+
         this.loadConfigurations();
     }
 
@@ -82,7 +82,7 @@ class ActivityWatch {
         const maxHeartbeatsPerSec = extConfigurations.get('maxHeartbeatsPerSec');
         if (maxHeartbeatsPerSec) {
             this._maxHeartbeatsPerSec = maxHeartbeatsPerSec as number;
-        }    
+        }
     }
 
     public dispose() {
@@ -99,7 +99,7 @@ class ActivityWatch {
             const heartbeat = this._createHeartbeat();
             const filePath = this._getFilePath();
             const curTime = new Date().getTime();
-            
+
             // Send heartbeat if file changed or enough time passed
             if (filePath !== this._lastFilePath || this._lastHeartbeatTime + (1000 / (this._maxHeartbeatsPerSec)) < curTime) {
                 this._lastFilePath = filePath || 'unknown';
@@ -112,16 +112,16 @@ class ActivityWatch {
         }
     }
 
-    private _sendHeartbeat(event: AppEditorEvent) {
+    private _sendHeartbeat(event: IAppEditorEvent) {
         return this._client.heartbeat(this._bucket.id, this._pulseTime, event)
-            .then(() => console.log('Sent heartbeat', event))    
+            .then(() => console.log('Sent heartbeat', event))
             .catch(({ err }) => {
                 console.error('sendHeartbeat error: ', err);
                 this._handleError('Error while sending heartbeat', true);
             });
     }
 
-    private _createHeartbeat(): AppEditorEvent {
+    private _createHeartbeat(): IAppEditorEvent {
         return {
             timestamp: new Date(),
             duration: 0,
@@ -152,7 +152,7 @@ class ActivityWatch {
         if (!editor) {
             return;
         }
-        
+
         return editor.document.fileName;
     }
 
