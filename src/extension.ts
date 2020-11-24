@@ -134,17 +134,25 @@ class ActivityWatch {
     }
 
     private _getProjectFolder(): string | undefined {
-        const filePath = this._getFilePath();
-        if (!filePath) {
+        const fileUri = this._getActiveFileUri();
+        if (!fileUri) {
             return;
         }
-        const uri = Uri.file(filePath);
-        const workspaceFolder = workspace.getWorkspaceFolder(uri);
+        const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
         if (!workspaceFolder) {
             return;
         }
 
         return workspaceFolder.uri.path;
+    }
+
+    private _getActiveFileUri(): Uri | undefined {
+        const editor = window.activeTextEditor;
+        if (!editor) {
+            return;
+        }
+
+        return editor.document.uri;
     }
 
     private _getFilePath(): string | undefined {
