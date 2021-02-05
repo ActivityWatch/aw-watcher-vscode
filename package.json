@@ -2,12 +2,12 @@
     "name": "aw-watcher-vscode",
     "displayName": "aw-watcher-vscode",
     "description": "vs-code extension for the open source tracking tool ActivityWatch",
-    "version": "0.4.2",
+    "version": "0.5.0",
     "repository": {
         "type": "git",
         "url": "https://github.com/ActivityWatch/aw-watcher-vscode"
     },
-    "publisher": "lindraupe",
+    "publisher": "activitywatch",
     "author": "ActivityWatch Developers",
     "bugs": {
         "url": "https://github.com/ActivityWatch/aw-watcher-vscode/issues"
@@ -21,7 +21,7 @@
     "keywords": [
         "multi-root ready"
     ],
-    "icon": "media/logo/logo-128.png",
+    "icon": "media/logo/logo.png",
     "activationEvents": [
         "*"
     ],
@@ -38,7 +38,7 @@
         ],
         "configuration": {
             "type": "object",
-            "title": "aw-watcher-vscode-extension configuration",
+            "title": "aw-watcher-vscode extension configuration",
             "properties": {
                 "aw-watcher-vscode.maxHeartbeatsPerSec": {
                     "type": "number",
@@ -49,12 +49,12 @@
         }
     },
     "scripts": {
-        "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "npm run compile && node ./node_modules/vscode/bin/test",
-        "test:mocha": "npm run compile && node ./node_modules/mocha/bin/mocha ./out/test/extension.test.js"
+        "test:mocha": "npm run compile && node ./node_modules/mocha/bin/mocha ./out/test/extension.test.js",
+        "vscode:prepublish": "npm run compile"
     },
     "devDependencies": {
         "@types/mocha": "^2.2.42",
