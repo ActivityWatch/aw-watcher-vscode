@@ -1,7 +1,7 @@
 {
     "name": "aw-watcher-vscode",
     "displayName": "aw-watcher-vscode",
-    "description": "vs-code extension for the open source tracking tool ActivityWatch",
+    "description": "Editor watcher for ActivityWatch, the free and open-source automated time tracker.",
     "version": "0.5.0",
     "repository": {
         "type": "git",
