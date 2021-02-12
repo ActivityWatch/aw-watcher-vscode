@@ -1,100 +1,88 @@
-# aw-watcher-vscode [WIP]
+# aw-watcher-vscode
 
-This extension allows the open source tracking tool [ActivityWatch](http://activitywatch.net/) to keep track of the projects and coding languages you use in Visual Code.
+This extension allows [ActivityWatch](https://activitywatch.net), the free and open-source time tracker, to keep track of the projects and programming languages you use in VS Code.
 
-The source code is visible at https://github.com/ActivityWatch/aw-watcher-vscode
+The extension is published on [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=activitywatch.aw-watcher-vscode) and soon `open-vsx.org`.
+
+The source code is available at https://github.com/ActivityWatch/aw-watcher-vscode
 
 ## Features
 
 Sends following data to ActivityWatch:
 - current project name
-- coding language
+- programming language
 - current file name
 
 Currently VS Code extensions don't support getting file/project names for non-editable files, therefore this results in the value "unknown" for those properties. (For instance when opening logo.png this happens)
 
 ## Requirements
 
-To run this extension you will need to have a running ActivityWatch Server.
+This extension requires ActivityWatch to be running on your machine.
 
 ## Commands
+
 #### Reload ActivityWatch
+
 Use this in case VS Code has been started before the AW server.
 
-
-## Error reporting
-If you run into any errors or have feature requests, please open an issue at the [git repository](https://github.com/ActivityWatch/aw-watcher-vscode).
-
-<!---
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+This extension adds the following settings:
 
-For example:
+- `aw-watcher-vscode.maxHeartbeatsPerSec`: Controls the maximum number of heartbeats sent per second.
+<!--
+TODO:
+* `aw-watcher-vscode.enable`: enable/disable this extension
+-->
 
-This extension contributes the following settings:
+## Error reporting
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+If you run into any errors or have feature requests, please [open an issue](https://github.com/ActivityWatch/aw-watcher-vscode).
+
+<!--
 ## Known Issues
 
 Calling out known issues can help limit users opening duplicate issues against your extension.
 -->
------------------------------------------------------------------------------------------------------------
 
 ## Release Notes
 
-### 0.1.0
+### 0.5.0
 
-Initial release of aw-watcher-vscode.
+ - Updated publisherId to `activitywatch`.
+ - Added support for VSCodium.
+ - Added support for VSCode remote.
 
-### 0.2.0
+### 0.4.1
 
-Refined error handling and README.
+Updated aw-client-js, media and npm dependencies.
 
-### 0.3.0
+### 0.4.0
 
-Refined error handling and heartbeat logic.
+Updated submodules aw-client-js and media to latest
 
-#### 0.3.2
-
-Added maxHeartbeatsPerSec configuration
-
-#### 0.3.3
-
-Fixed security vulnerability of an outdated dependency
-
-#### 0.4.0
-
-update submodules aw-client-js and media to latest
-
-fix the extension to work with the latest aw-client:
+fixed the extension to work with the latest aw-client:
 - AppEditorActivityHeartbeat --> IAppEditorEvent
 - createBucket --> ensureBucket
 - options object in AWClient constructor
 - timestamp should be a Date not a string
 
-#### 0.4.1
+### 0.3.3
 
-Update aw-client-js, media and npm dependencies
+Fixed security vulnerability of an outdated dependency.
 
-<!---
+### 0.3.2
 
------------------------------------------------------------------------------------------------------------
+Added `maxHeartbeatsPerSec` configuration.
 
-## Working with Markdown
+### 0.3.0
 
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
+Refined error handling and heartbeat logic.
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
+### 0.2.0
 
-### For more information
+Refined error handling and README.
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+### 0.1.0
 
-**Enjoy!**
-
--->
+Initial release of aw-watcher-vscode.
