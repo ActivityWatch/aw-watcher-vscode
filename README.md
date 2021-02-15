@@ -19,6 +19,10 @@ Currently VS Code extensions don't support getting file/project names for non-ed
 
 This extension requires ActivityWatch to be running on your machine.
 
+## Install Instructions
+
+To install this extension, search for aw-watcher-vscode in the Extensions sidebar in VS Code, and install the one with ActivityWatch as the publisher name. And that's it, if Activity Watch was running, it should detect this vs-code watcher automatically. Give it some time to have some data to display and it should show in the ActivityWatch Timeline and Activity sections soon.
+
 ## Commands
 
 #### Reload ActivityWatch
