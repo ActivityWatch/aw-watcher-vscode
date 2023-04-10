@@ -47,8 +47,12 @@ class ActivityWatch {
         };
         this._bucket.id = `${this._bucket.clientName}_${this._bucket.hostName}`;
 
+        // use vscode parsed uri
+        const baseUri = await vscode.env.asExternalUri(
+            vscode.Uri.parse(`http://localhost:5600`));
+        
         // Create AWClient
-        this._client = new AWClient(this._bucket.clientName, { testing: false });
+        this._client = new AWClient(this._bucket.clientName, { testing: false }, baseUri);
 
         // subscribe to VS Code Events
         let subscriptions: Disposable[] = [];
