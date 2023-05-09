@@ -1,8 +1,9 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the necessary extensibility types to use in your code below
-import { Disposable, ExtensionContext, commands, window, workspace, Uri } from 'vscode';
+import { Disposable, ExtensionContext, commands, window, workspace, Uri, Extension, extensions } from 'vscode';
 import { AWClient, IAppEditorEvent } from '../aw-client-js/src/aw-client';
 import { hostname } from 'os';
+import { API, GitExtension } from './git';
 
 // This method is called when your extension is activated. Activation is
 // controlled by the activation events defined in package.json.
@@ -22,6 +23,7 @@ export function activate(context: ExtensionContext) {
 class ActivityWatch {
     private _disposable: Disposable;
     private _client: AWClient;
+    private _git: API | undefined;
 
     // Bucket info
     private _bucket: {
@@ -37,6 +39,7 @@ class ActivityWatch {
     private _maxHeartbeatsPerSec: number = 1;
     private _lastFilePath: string = '';
     private _lastHeartbeatTime: number = 0; // Date.getTime()
+    private _lastBranch: string = '';
 
     constructor() {
         this._bucket = {
@@ -73,8 +76,14 @@ class ActivityWatch {
                 this._bucketCreated = false;
                 console.error(err);
             });
-
+        this.initGit().then((res) => this._git = res);
         this.loadConfigurations();
+    }
+
+    private async initGit() {
+        const extension = extensions.getExtension('vscode.git') as Extension<GitExtension>;
+        const gitExtension = extension.isActive ? extension.exports : await extension.activate();
+        return gitExtension.getAPI(1);
     }
 
     public loadConfigurations() {
@@ -99,15 +108,18 @@ class ActivityWatch {
             const heartbeat = this._createHeartbeat();
             const filePath = this._getFilePath();
             const curTime = new Date().getTime();
+            const branch = this._getCurrentBranch();
 
-            // Send heartbeat if file changed or enough time passed
-            if (filePath !== this._lastFilePath || this._lastHeartbeatTime + (1000 / (this._maxHeartbeatsPerSec)) < curTime) {
+            // Send heartbeat if file changed, branch changed or enough time passed
+            if (filePath !== this._lastFilePath ||
+                    branch !== this._lastBranch ||
+                    this._lastHeartbeatTime + (1000 / (this._maxHeartbeatsPerSec)) < curTime) {
                 this._lastFilePath = filePath || 'unknown';
                 this._lastHeartbeatTime = curTime;
                 this._sendHeartbeat(heartbeat);
             }
         }
-        catch (err) {
+        catch (err: any) {
             this._handleError(err);
         }
     }
@@ -128,7 +140,8 @@ class ActivityWatch {
             data: {
                 language: this._getFileLanguage() || 'unknown',
                 project: this._getProjectFolder() || 'unknown',
-                file: this._getFilePath() || 'unknown'
+                file: this._getFilePath() || 'unknown',
+                branch: this._getCurrentBranch() || 'unknown'
             }
         };
     }
@@ -171,6 +184,13 @@ class ActivityWatch {
         }
 
         return editor.document.languageId;
+    }
+
+    private _getCurrentBranch(): string | undefined {
+        if (this._git === undefined) {
+            return;
+        }
+        return this._git.repositories[0]?.state?.HEAD?.name;
     }
 
     private _handleError(err: string, isCritical = false): undefined {

@@ -12,6 +12,7 @@ Sends following data to ActivityWatch:
 - current project name
 - programming language
 - current file name
+- current Git branch
 
 Currently VS Code extensions don't support getting file/project names for non-editable files, therefore this results in the value "unknown" for those properties. (For instance when opening logo.png this happens)
 
