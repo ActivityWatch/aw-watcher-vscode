@@ -9,6 +9,7 @@ The source code is available at https://github.com/ActivityWatch/aw-watcher-vsco
 ## Features
 
 Sends following data to ActivityWatch:
+- current workspace name
 - current project name
 - programming language
 - current file name
