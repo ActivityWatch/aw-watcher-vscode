@@ -141,7 +141,8 @@ class ActivityWatch {
                 language: this._getFileLanguage() || 'unknown',
                 project: this._getProjectFolder() || 'unknown',
                 file: this._getFilePath() || 'unknown',
-                branch: this._getCurrentBranch() || 'unknown'
+                branch: this._getCurrentBranch() || 'unknown',
+                workspace: workspace.name || 'unknown'
             }
         };
     }
