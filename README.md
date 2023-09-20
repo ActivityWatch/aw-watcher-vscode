@@ -59,11 +59,12 @@ If you are running Activity Watcher on your windows machine but work in vscode i
 This can be accomplished by locating the "PORTS" view under `View > Open View > Ports` and selecting `Add Port` then typing in `5600` (no quotes), this should auto-forward the WSL subnet's localhost port of 5600 to your Windows machines `localhost:5600` and show an origin of `User Forwarded`.
 
 #### Permanent Solution
-With the above described solution it is necessary to do so on each and every vscode workspace you open. If you would like to avoid having to manually forward the port each time you can follow the two simple steps listed below to permanently forward port `5600` to localhost.
+With the above described solution it is necessary to do so on each and every vscode workspace you open. If you would like to avoid having to manually forward the port each time you can follow the step listed below to permanently forward port `5600` to localhost.
 
-1. In your WSL shell run the command `ip a` and take note of WSL's IP Address, this will most likely be one of two IPs that appears, the 127.0.0.1 address is the loopback address and should NOT be used, take note of the other IP as it will be used in step two.
-2. Open powershell on your windows machine with admin privileges and run the following command, while remembering to replace `WSL_IP` with the IP address noted in step 1.
-    - `netsh interface portproxy add v4tov4 listenport=5600 connectport=5600 connectaddress=[WSL_IP]`
+1. Open powershell on your windows machine with admin privileges and run the following command.
+    - `netsh interface portproxy add v4tov4 listenport=5600 connectport=5600 connectaddress=*`
+
+    - <b>NOTE:</b> If `connectaddress` is set to the WSL IP address rather than `*` it will cause aw-server to fail to start.
 
 ## Release Notes
 
