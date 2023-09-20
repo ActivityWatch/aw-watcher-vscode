@@ -50,6 +50,12 @@ If you run into any errors or have feature requests, please [open an issue](http
 Calling out known issues can help limit users opening duplicate issues against your extension.
 -->
 
+## Notes on use with Windows Subsystem for Linux (WSL)
+
+If you are running Activity Watcher on your windows machine but work in vscode inside a WSL remote window aw-watcher-vscode will attempt to connect to the aw-server via localhost:5600 but since WSL runs on a different subnet than your windows machine port-forwarding IS required.
+
+This can be accomplished by locating the "PORTS" view under `View > Open View > Ports` and selecting `Add Port` then typing in `5600` (no quotes), this should auto-forward the WSL subnet's localhost port of 5600 to your Windows machines `localhost:5600` and show an origin of `User Forwarded`.
+
 ## Release Notes
 
 ### 0.5.0
