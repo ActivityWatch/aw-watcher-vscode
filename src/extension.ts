@@ -138,6 +138,7 @@ class ActivityWatch {
             timestamp: new Date(),
             duration: 0,
             data: {
+                editor: 'vscode',
                 language: this._getFileLanguage() || 'unknown',
                 project: this._getProjectFolder() || 'unknown',
                 file: this._getFilePath() || 'unknown',
