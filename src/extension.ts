@@ -1,6 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the necessary extensibility types to use in your code below
-import { Disposable, ExtensionContext, commands, window, workspace, Uri, Extension, extensions } from 'vscode';
+import { Disposable, ExtensionContext, commands, window, workspace, Uri, Extension, extensions, env } from 'vscode';
 import { AWClient, IAppEditorEvent } from '../aw-client-js/src/aw-client';
 import { hostname } from 'os';
 import { API, GitExtension } from './git';
@@ -41,6 +41,11 @@ class ActivityWatch {
     private _lastHeartbeatTime: number = 0; // Date.getTime()
     private _lastBranch: string = '';
 
+    // Terminal tracking
+    private _lastTerminalName: string = '';
+    private _lastTerminalPid: string = '';
+    private _isTerminalActive: boolean = false;
+
     constructor() {
         this._bucket = {
             id: '',
@@ -57,6 +62,9 @@ class ActivityWatch {
         let subscriptions: Disposable[] = [];
         window.onDidChangeTextEditorSelection(this._onEvent, this, subscriptions);
         window.onDidChangeActiveTextEditor(this._onEvent, this, subscriptions);
+        // Add terminal tracking
+        window.onDidChangeActiveTerminal(this._onTerminalEvent, this, subscriptions);
+        window.onDidOpenTerminal(this._onTerminalEvent, this, subscriptions);
         this._disposable = Disposable.from(...subscriptions);
     }
 
@@ -124,6 +132,42 @@ class ActivityWatch {
         }
     }
 
+    private _onTerminalEvent() {
+        if (!this._bucketCreated) {
+            return;
+        }
+
+        try {
+            const activeTerminal = window.activeTerminal;
+            const heartbeat = this._createHeartbeat();
+            const curTime = new Date().getTime();
+            const branch = this._getCurrentBranch();
+            
+            // Update terminal state
+            const isTerminalActive = activeTerminal !== undefined;
+            const terminalName = activeTerminal?.name || '';
+            const terminalPid = activeTerminal?.processId?.toString() || '';
+
+            // Send heartbeat if terminal state changed, branch changed, or enough time passed
+            if (isTerminalActive !== this._isTerminalActive ||
+                    terminalName !== this._lastTerminalName ||
+                    terminalPid !== this._lastTerminalPid ||
+                    branch !== this._lastBranch ||
+                    this._lastHeartbeatTime + (1000 / (this._maxHeartbeatsPerSec)) < curTime) {
+                
+                this._isTerminalActive = isTerminalActive;
+                this._lastTerminalName = terminalName;
+                this._lastTerminalPid = terminalPid;
+                this._lastBranch = branch || '';
+                this._lastHeartbeatTime = curTime;
+                this._sendHeartbeat(heartbeat);
+            }
+        }
+        catch (err: any) {
+            this._handleError(err);
+        }
+    }
+
     private _sendHeartbeat(event: IAppEditorEvent) {
         return this._client.heartbeat(this._bucket.id, this._pulseTime, event)
             .then(() => console.log('Sent heartbeat', event))
@@ -134,29 +178,114 @@ class ActivityWatch {
     }
 
     private _createHeartbeat(): IAppEditorEvent {
-        return {
-            timestamp: new Date(),
-            duration: 0,
-            data: {
-                language: this._getFileLanguage() || 'unknown',
-                project: this._getProjectFolder() || 'unknown',
-                file: this._getFilePath() || 'unknown',
-                branch: this._getCurrentBranch() || 'unknown'
+        const activeTerminal = window.activeTerminal;
+        const activeEditor = window.activeTextEditor;
+        
+        // Determine if we're in terminal or editor context
+        if (activeTerminal && !activeEditor) {
+            // Terminal is active, no editor
+            const cleanTerminalName = this._getCleanTerminalName(activeTerminal);
+            return {
+                timestamp: new Date(),
+                duration: 0,
+                data: {
+                    language: 'terminal',
+                    project: this._getProjectFolder() || 'unknown',
+                    file: cleanTerminalName,
+                    branch: this._getCurrentBranch() || 'unknown',
+                    terminal_name: activeTerminal.name,
+                    terminal_pid: activeTerminal.processId?.toString() || 'unknown'
+                }
+            };
+        } else {
+            // Editor context (existing behavior)
+            return {
+                timestamp: new Date(),
+                duration: 0,
+                data: {
+                    language: this._getFileLanguage() || 'unknown',
+                    project: this._getProjectFolder() || 'unknown',
+                    file: this._getFilePath() || 'unknown',
+                    branch: this._getCurrentBranch() || 'unknown'
+                }
+            };
+        }
+    }
+
+    private _getCleanTerminalName(terminal: any): string {
+        try {
+            const projectName = this._getProjectName();
+            const editorName = this._getEditorName();
+            
+            // Format: "Cursor/VSCode - Terminal - [project]"
+            return `${editorName} - Terminal - [${projectName}]`;
+        } catch (err) {
+            console.error('[ActivityWatch] Error creating clean terminal name:', err);
+            return `terminal:${terminal.name || 'unknown'}`;
+        }
+    }
+
+    private _getProjectName(): string {
+        try {
+            // Try to get project name from workspace folder
+            if (workspace.workspaceFolders && workspace.workspaceFolders.length > 0) {
+                const workspaceFolder = workspace.workspaceFolders[0];
+                // Extract just the folder name, not the full path
+                const pathParts = workspaceFolder.uri.path.split('/');
+                const projectName = pathParts[pathParts.length - 1];
+                return projectName && projectName.length > 0 ? projectName : 'unknown';
             }
-        };
+        } catch (err) {
+            console.error('[ActivityWatch] Error getting project name:', err);
+        }
+        return 'unknown';
+    }
+
+    private _getEditorName(): string {
+        try {
+            // Use VS Code API to detect the application name
+            const appName = env.appName || '';
+            const appRoot = env.appRoot || '';
+            
+            console.log('[ActivityWatch] App detection - appName:', appName, 'appRoot:', appRoot);
+            
+            // Check if running in Cursor based on app name or path
+            if (appName.toLowerCase().includes('cursor') || 
+                appRoot.toLowerCase().includes('cursor')) {
+                return 'Cursor';
+            }
+            
+            // Fallback to process environment checks
+            const processEnv = process.env || {};
+            if (processEnv.CURSOR_VERSION || 
+                (processEnv.TERM_PROGRAM && processEnv.TERM_PROGRAM.toLowerCase().includes('cursor'))) {
+                return 'Cursor';
+            }
+            
+            return 'VSCode';
+        } catch (err) {
+            console.error('[ActivityWatch] Error detecting editor name:', err);
+            return 'VSCode';
+        }
     }
 
     private _getProjectFolder(): string | undefined {
+        // Try to get from active editor first
         const fileUri = this._getActiveFileUri();
-        if (!fileUri) {
-            return;
+        if (fileUri) {
+            const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
+            if (workspaceFolder) {
+                return workspaceFolder.uri.path;
+            }
         }
-        const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
-        if (!workspaceFolder) {
-            return;
+        
+        // Fall back to first workspace folder if terminal is active
+        const activeTerminal = window.activeTerminal;
+        if (activeTerminal && workspace.workspaceFolders && workspace.workspaceFolders.length > 0) {
+            return workspace.workspaceFolders[0].uri.path;
         }
-
-        return workspaceFolder.uri.path;
+        
+        return undefined;
     }
 
     private _getActiveFileUri(): Uri | undefined {
