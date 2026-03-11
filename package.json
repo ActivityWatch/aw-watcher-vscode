@@ -1,8 +1,8 @@
 {
     "name": "aw-watcher-vscode",
     "displayName": "aw-watcher-vscode",
-    "description": "Editor watcher for ActivityWatch, the free and open-source automated time tracker.",
-    "version": "0.5.0",
+    "description": "Enhanced editor watcher for ActivityWatch — tracks files, terminals, git, debugging, and more.",
+    "version": "0.7.0",
     "repository": {
         "type": "git",
         "url": "https://github.com/ActivityWatch/aw-watcher-vscode"
@@ -19,7 +19,9 @@
         "Other"
     ],
     "keywords": [
-        "multi-root ready"
+        "multi-root ready",
+        "activitywatch",
+        "time-tracking"
     ],
     "icon": "media/logo/logo.png",
     "activationEvents": [
@@ -28,6 +30,11 @@
     "extensionKind": [
         "ui"
     ],
+    "capabilities": {
+        "untrustedWorkspaces": {
+            "supported": true
+        }
+    },
     "main": "./out/src/extension",
     "contributes": {
         "commands": [
@@ -43,7 +50,7 @@
                 "aw-watcher-vscode.maxHeartbeatsPerSec": {
                     "type": "number",
                     "default": 1,
-                    "description": "Controls the maximum number of hearbeats sent per second."
+                    "description": "Controls the maximum number of heartbeats sent per second."
                 }
             }
         }
