@@ -20,6 +20,17 @@ Currently VS Code extensions don't support getting file/project names for non-ed
 
 This extension requires ActivityWatch to be running on your machine.
 
+## VS Code-compatible editors
+
+When this extension runs in VS Code-compatible editors, it uses a distinct
+ActivityWatch client and bucket name for each known editor so their activity
+streams do not overlap:
+
+- VS Code: `aw-watcher-vscode`
+- VSCodium: `aw-watcher-vscodium`
+- Cursor: `aw-watcher-cursor`
+- Antigravity: `aw-watcher-antigravity`
+
 ## Install Instructions
 
 To install this extension, search for aw-watcher-vscode in the Extensions sidebar in VS Code, and install the one with ActivityWatch as the publisher name. And that's it, if Activity Watch was running, it should detect this vs-code watcher automatically. Give it some time to have some data to display and it should show in the ActivityWatch Timeline and Activity sections soon.
