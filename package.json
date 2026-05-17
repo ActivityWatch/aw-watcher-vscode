@@ -40,6 +40,26 @@
             "type": "object",
             "title": "aw-watcher-vscode extension configuration",
             "properties": {
+                "aw-watcher-vscode.host": {
+                    "type": "string",
+                    "default": "",
+                    "description": "ActivityWatch server hostname. Leave empty for localhost."
+                },
+                "aw-watcher-vscode.port": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "ActivityWatch server port. Set to 0 for default (5600)."
+                },
+                "aw-watcher-vscode.authUser": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Username for HTTP Basic Auth (for nginx-proxied servers)."
+                },
+                "aw-watcher-vscode.authPassword": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Password for HTTP Basic Auth (for nginx-proxied servers)."
+                },
                 "aw-watcher-vscode.maxHeartbeatsPerSec": {
                     "type": "number",
                     "default": 1,

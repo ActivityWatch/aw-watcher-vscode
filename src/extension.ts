@@ -50,8 +50,28 @@ class ActivityWatch {
         };
         this._bucket.id = `${this._bucket.clientName}_${this._bucket.hostName}`;
 
+        // Read server configuration
+        const extConfig = workspace.getConfiguration('aw-watcher-vscode');
+        const host = extConfig.get<string>('host') || '';
+        const port = extConfig.get<number>('port') || 0;
+        const authUser = extConfig.get<string>('authUser') || '';
+        const authPassword = extConfig.get<string>('authPassword') || '';
+
+        // Build client options
+        const clientOptions: any = { testing: false };
+        if (host) {
+            const effectivePort = port || 5600;
+            clientOptions.baseURL = `http://${host}:${effectivePort}`;
+        }
+
         // Create AWClient
-        this._client = new AWClient(this._bucket.clientName, { testing: false });
+        this._client = new AWClient(this._bucket.clientName, clientOptions);
+
+        // Inject Basic Auth into axios instance if configured
+        if (authUser && authPassword) {
+            const token = Buffer.from(`${authUser}:${authPassword}`).toString('base64');
+            this._client.req.defaults.headers.common['Authorization'] = `Basic ${token}`;
+        }
 
         // subscribe to VS Code Events
         let subscriptions: Disposable[] = [];
