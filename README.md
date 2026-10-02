@@ -35,10 +35,30 @@ Use this in case VS Code has been started before the AW server.
 This extension adds the following settings:
 
 - `aw-watcher-vscode.maxHeartbeatsPerSec`: Controls the maximum number of heartbeats sent per second.
-<!--
-TODO:
-* `aw-watcher-vscode.enable`: enable/disable this extension
--->
+- `aw-watcher-vscode.enabled`: Enable or disable the ActivityWatch editor watcher (default: `true`).
+- `aw-watcher-vscode.serverUrl`: Optional ActivityWatch server URL. Leave empty to use the default (`http://127.0.0.1:5600`).
+
+## Requirements
+
+- VS Code `1.85.0` or later.
+- Node `18` or later (only needed if you build the extension from source).
+- A running ActivityWatch server (the extension connects to `http://127.0.0.1:5600` by default).
+
+## Development
+
+```sh
+git clone https://github.com/ActivityWatch/aw-watcher-vscode
+cd aw-watcher-vscode
+git -c core.symlinks=false submodule update --init --recursive
+npm install
+npm run lint
+npm run compile
+npm run test:mocha        # unit tests (no extension host)
+npm test                  # integration tests via @vscode/test-cli
+npm run package           # produces a .vsix
+```
+
+On Windows you may need to run `git -c core.symlinks=false submodule update ...` to avoid symref errors.
 
 ## Error reporting
 
@@ -51,6 +71,17 @@ Calling out known issues can help limit users opening duplicate issues against y
 -->
 
 ## Release Notes
+
+See [`CHANGELOG.md`](CHANGELOG.md) for the full release history. Highlights:
+
+### 0.6.0
+
+ - **Node 18+ required** (uses global `fetch` from the new `aw-client-js`).
+ - Bumped `engines.vscode` to `^1.85.0` and `typescript` to `5.6.x`.
+ - Replaced `tslint` with `eslint`; added `prettier` and a GitHub Actions CI workflow.
+ - Updated `aw-client-js` to its current master (drops `axios`).
+ - Added `aw-watcher-vscode.enabled` and `aw-watcher-vscode.serverUrl` settings.
+ - Tightened `activationEvents` from `["*"]` to `["onStartupFinished"]`.
 
 ### 0.5.0
 
