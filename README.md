@@ -16,6 +16,25 @@ Sends following data to ActivityWatch:
 
 Currently VS Code extensions don't support getting file/project names for non-editable files, therefore this results in the value "unknown" for those properties. (For instance when opening logo.png this happens)
 
+## Editor activity and total VS Code time
+
+This watcher records editor activity when the active text editor or its selection
+changes. Keeping VS Code focused does not continuously send editor heartbeats.
+Typing in the integrated terminal or interacting with a sidebar can therefore be
+missing from the editor bucket. That bucket is not a total of all VS Code usage.
+
+For total application usage, keep your window watcher and `aw-watcher-afk` running.
+In ActivityWatch's **Activity** view, select the correct host and date, then look
+for VS Code in **Top Applications** (for example, `code` on Linux/X11). Leave AFK
+filtering enabled to exclude idle periods according to your AFK timeout. This
+includes active use of terminals and sidebars while the VS Code window is active,
+but does not identify the pane, terminal command, file, or project used.
+
+Application names vary across platforms and VS Code variants. Window tracking
+requires a watcher compatible with your desktop; see the
+[window watcher list](https://docs.activitywatch.net/en/latest/watchers.html#window-watchers),
+including the alternatives for Wayland.
+
 ## Requirements
 
 This extension requires ActivityWatch to be running on your machine.
