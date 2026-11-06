@@ -5,7 +5,7 @@ module.exports = {
     version: 'stable',
     workspaceFolder: './',
     mocha: {
-        ui: 'tdd',
+        ui: 'bdd',
         useColors: true,
     },
 };
