@@ -18,7 +18,8 @@ Code-review fixes over 0.7.0.
   stalls the rest).
 
 ### Changed
-- `repository` / `bugs` URLs point at this maintained fork.
+- `repository` / `bugs` URLs point at ActivityWatch/aw-watcher-vscode
+  (the 0.7 line is now upstream; see Contributors in the README).
 - `enabled` / `serverUrl` setting descriptions note the Reload requirement.
 
 ## 0.7.0

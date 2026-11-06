@@ -121,6 +121,22 @@ With the solution above it is necessary to repeat the step for each VS Code work
 
     - <b>NOTE:</b> If `connectaddress` is set to the WSL IP address rather than `*`, aw-server may fail to start because the port is already bound.
 
+## Contributors
+
+The 0.6/0.7 modernization and the roll-up of long-pending community pull requests
+were done by [@ComfyChloe](https://github.com/ComfyChloe) in her maintained fork and
+upstreamed here with her authorship preserved. The rolled-up changes originate from:
+
+- [@liv10let](https://github.com/liv10let): HTTP Basic Auth ([#51](https://github.com/ActivityWatch/aw-watcher-vscode/pull/51))
+- [@johnyoonh](https://github.com/johnyoonh): distinct buckets for VS Code-compatible editors ([#50](https://github.com/ActivityWatch/aw-watcher-vscode/pull/50))
+- [@kepptic](https://github.com/kepptic): terminal context, editor enrichment, multi-window fix ([#48](https://github.com/ActivityWatch/aw-watcher-vscode/pull/48))
+- [@blsmth](https://github.com/blsmth): terminal tracking ([#44](https://github.com/ActivityWatch/aw-watcher-vscode/pull/44))
+- [@ishanarora](https://github.com/ishanarora): untrusted workspace support ([#40](https://github.com/ActivityWatch/aw-watcher-vscode/pull/40))
+- [@kristof-ringleff](https://github.com/kristof-ringleff): editor label in event data ([#39](https://github.com/ActivityWatch/aw-watcher-vscode/pull/39))
+- [@gignsky](https://github.com/gignsky): WSL port-forwarding notes ([#37](https://github.com/ActivityWatch/aw-watcher-vscode/pull/37))
+- [@Thopiax](https://github.com/Thopiax): workspace name ([#36](https://github.com/ActivityWatch/aw-watcher-vscode/pull/36))
+- [#53](https://github.com/ActivityWatch/aw-watcher-vscode/pull/53) and [#54](https://github.com/ActivityWatch/aw-watcher-vscode/pull/54): heartbeat rate limit and editor-time docs
+
 ## Release Notes
 
 See [`CHANGELOG.md`](CHANGELOG.md) for the full release history. Highlights:

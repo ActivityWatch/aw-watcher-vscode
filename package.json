@@ -5,12 +5,12 @@
     "version": "0.7.1",
     "repository": {
         "type": "git",
-        "url": "https://github.com/ComfyChloe/aw-watcher-vscode"
+        "url": "https://github.com/ActivityWatch/aw-watcher-vscode"
     },
     "publisher": "activitywatch",
     "author": "ActivityWatch Developers",
     "bugs": {
-        "url": "https://github.com/ComfyChloe/aw-watcher-vscode/issues"
+        "url": "https://github.com/ActivityWatch/aw-watcher-vscode/issues"
     },
     "engines": {
         "vscode": "^1.85.0",
