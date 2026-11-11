@@ -53,7 +53,7 @@ class ActivityWatch {
     private _maxHeartbeatsPerSec: number = 1;
     private _lastFilePath: string = '';
     private _lastHeartbeatTime: number = 0; // Date.getTime()
-    private _lastBranch: string = '';
+    private _lastBranch: string | undefined;
     private _lastEditorUri: Uri | undefined;
     private _lastEditorInput: number = 0; // Date.getTime()
 
@@ -73,7 +73,7 @@ class ActivityWatch {
         let subscriptions: Disposable[] = [];
         window.onDidChangeTextEditorSelection(this._onEditorInput, this, subscriptions);
         window.onDidChangeTextEditorVisibleRanges(this._onEditorInput, this, subscriptions);
-        window.onDidChangeActiveTextEditor(this._onEvent, this, subscriptions);
+        window.onDidChangeActiveTextEditor(this._onEditorInput, this, subscriptions);
         window.onDidChangeWindowState(this._onEvent, this, subscriptions);
         const tabGroups = this._getTabGroups();
         if (tabGroups) {
@@ -133,8 +133,7 @@ class ActivityWatch {
     }
 
     private _onEvent() {
-        // The 'active' flag arrived in VS Code 1.89 and is undefined on older hosts.
-        if (!this._bucketCreated || !window.state.focused || (window.state as any).active === false) {
+        if (!this._bucketCreated || !window.state.focused) {
             return;
         }
 
@@ -158,6 +157,7 @@ class ActivityWatch {
                     branch !== this._lastBranch ||
                     this._lastHeartbeatTime + (1000 / (this._maxHeartbeatsPerSec)) < curTime) {
                 this._lastFilePath = filePath || 'unknown';
+                this._lastBranch = branch;
                 this._lastHeartbeatTime = curTime;
                 this._sendHeartbeat(heartbeat);
             }
