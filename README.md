@@ -14,6 +14,8 @@ Sends following data to ActivityWatch:
 - current file name
 - current Git branch
 
+While the VS Code window has focus, time keeps accruing for the active tab, including terminals, webviews such as chat panels, and custom editors. A text editor stops accruing 180 seconds after its last selection, scroll or switch. Time away from the keyboard with VS Code still focused is not excluded here, so read editor time together with `aw-watcher-afk`, as with `aw-watcher-window`.
+
 Currently VS Code extensions don't support getting file/project names for non-editable files, therefore this results in the value "unknown" for those properties. (For instance when opening logo.png this happens)
 
 ## Requirements
