@@ -2,7 +2,7 @@
 // Import the necessary extensibility types to use in your code below
 import { Disposable, ExtensionContext, commands, window, workspace, Uri, Extension, extensions } from 'vscode';
 import { AWClient, IAppEditorEvent } from '../aw-client-js/src/aw-client';
-import { hostname } from 'os';
+import { hostname, platform } from 'os';
 import { API, GitExtension } from './git';
 
 // This method is called when your extension is activated. Activation is
@@ -50,8 +50,9 @@ class ActivityWatch {
         };
         this._bucket.id = `${this._bucket.clientName}_${this._bucket.hostName}`;
 
-        // Create AWClient
-        this._client = new AWClient(this._bucket.clientName, { testing: false });
+        // Use IPv4 loopback on Windows, where the local server may only listen on IPv4.
+        const baseURL = platform() === 'win32' ? 'http://127.0.0.1:5600' : undefined;
+        this._client = new AWClient(this._bucket.clientName, { testing: false, baseURL });
 
         // subscribe to VS Code Events
         let subscriptions: Disposable[] = [];
